@@ -10,16 +10,20 @@ import {
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { Roles } from 'src/custom-decorator/roles.decorator';
+import { Role } from './role.enum';
 
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
+  @Roles(Role.ADMIN)
   @Post()
   create(@Body() dto: CreateRoleDto) {
     return this.roleService.create(dto);
   }
 
+  @Roles(Role.ADMIN)
   @Get()
   findAll() {
     return this.roleService.findAll();
@@ -27,14 +31,16 @@ export class RoleController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+    return this.roleService.findById(+id);
   }
 
+  @Roles(Role.ADMIN)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(+id, updateRoleDto);
+  update(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
+    return this.roleService.update(+id, dto);
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.roleService.remove(+id);

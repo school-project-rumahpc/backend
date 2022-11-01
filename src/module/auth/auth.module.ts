@@ -1,3 +1,4 @@
+import { RoleModule } from './../role/role.module';
 import { AuthHelper } from './helper/auth.helper';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from './../user/user.module';
@@ -19,6 +20,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
       useClass: JwtConfig,
     }),
     UserModule,
+    RoleModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, AuthHelper],

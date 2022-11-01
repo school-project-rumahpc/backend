@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from './../../user/user.service';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { RoleService } from 'src/module/role/role.service';
 
 @Injectable()
 export class AuthHelper {
@@ -12,6 +13,7 @@ export class AuthHelper {
     private userService: UserService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private roleService: RoleService,
   ) {}
 
   getUserByEmail(email: string) {
@@ -38,7 +40,9 @@ export class AuthHelper {
     });
   }
 
-  createUser(dto: CreateUserDto) {
-    return this.userService.create(dto);
+  async createUser(dto: CreateUserDto) {
+    const role = await this.roleService.findByName(dto.role_name);
+
+    return await this.userService.create(dto, role);
   }
 }

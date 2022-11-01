@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
+import { EntityNotFoundError, Repository } from 'typeorm';
+import { CreateRoleDto, UpdateRoleDto } from './dto';
 import { Role } from './entities/role.entity';
 
 @Injectable()
@@ -17,18 +16,48 @@ export class RoleService {
   }
 
   findAll() {
-    return this.roleRepository.find({ order: { id: 'asc' } });
+    return this.roleRepository.find({
+      order: { id: 'ASC' },
+      relations: ['users'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  async findById(id: number) {
+    const role = await this.roleRepository.findOneBy({ id });
+
+    if (!role)
+      throw new BadRequestException(`Role with id ${id} is not found!`);
+    return role;
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+  async findByName(name: string) {
+    const role = await this.roleRepository.findOne({
+      where: { role_name: name },
+      relations: ['users'],
+    });
+
+    if (!role)
+      throw new BadRequestException(`Role with name ${name} is not found!`);
+
+    return role;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async update(id: number, dto: UpdateRoleDto) {
+    const role = await this.findById(id);
+    if (!role)
+      throw new BadRequestException(`Role with id ${id} is not found!`);
+    role.role_name = dto.role_name;
+
+    return await this.roleRepository.save(role);
+  }
+
+  async remove(id: number) {
+    const role = await this.findById(id);
+
+    if (!role)
+      throw new BadRequestException(`Role with id ${id} is not found!`);
+    await this.roleRepository.remove(role);
+
+    return `Role with Id ${id} has been deleted!`;
   }
 }

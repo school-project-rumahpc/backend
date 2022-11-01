@@ -17,9 +17,9 @@ import { Response, Request } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
+    private authService: AuthService,
+    private userService: UserService,
+    private jwtService: JwtService,
   ) {}
 
   @Get('user')

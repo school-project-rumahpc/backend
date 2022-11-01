@@ -24,7 +24,7 @@ export class AuthService {
       );
 
     // Creating User
-    const user = this.authHelper.createUser(dto);
+    const user = await this.authHelper.createUser(dto);
 
     return user;
   }

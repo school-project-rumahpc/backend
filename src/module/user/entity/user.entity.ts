@@ -4,11 +4,14 @@ import {
   CreateDateColumn,
   Entity,
   Generated,
+  JoinColumn,
+  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
+import { Role } from 'src/module/role/entities/role.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -28,6 +31,10 @@ export class User {
   @Exclude()
   @Column()
   password: string;
+
+  @ManyToOne(() => Role, (role) => role.users)
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

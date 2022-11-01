@@ -3,15 +3,17 @@ import { User } from './entity/user.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Role } from '../role/entities/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
 
   findAll() {
-    return this.userRepository.find();
+    return this.userRepository.find({ relations: ['role'] });
   }
 
   async findByName(username: string) {
@@ -46,9 +48,12 @@ export class UserService {
     }
   }
 
-  async create(dto: CreateUserDto) {
-    const user = this.userRepository.create(dto);
+  async create(dto: CreateUserDto, role: Role) {
+    const newUser = await this.userRepository.save(dto);
 
-    return await this.userRepository.save(user);
+    role.users = [...role.users, newUser];
+    await this.roleRepository.save(role);
+
+    return newUser;
   }
 }

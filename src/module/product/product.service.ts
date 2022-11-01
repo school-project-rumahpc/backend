@@ -42,8 +42,8 @@ export class ProductService {
   async filterProducts(search: string, price: any) {
     const products = await this.productRepository.find({
       relations: ['category', 'details'],
-      where: search ? { name: ILike(`%${search}%`) } : undefined,
-      order: price ? { price: `${price}` } : undefined,
+      where: search ? { name: ILike(`%${search}%`) } : null,
+      order: price ? { price: `${price}` } : null,
     });
 
     if (!products.length) throw new NotFoundException('Product Not Found');

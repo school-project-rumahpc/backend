@@ -35,11 +35,12 @@ export class Products {
   updated_at: Date;
 
   @OneToOne(() => Details, (details) => details.product)
-  @JoinColumn()
+  @JoinColumn({ name: 'details_id' })
   details: Details;
 
   @ManyToOne(() => Category, (category) => category.products, {
     onDelete: 'SET NULL',
   })
+  @JoinColumn({ name: 'category_id' })
   category: Category;
 }
