@@ -42,7 +42,7 @@ export class ProductService {
   async filterProducts(search: string, price: any) {
     const products = await this.productRepository.find({
       relations: ['category', 'details'],
-      where: search ? { name: ILike(`%${search}%`) } : null,
+      where: search ? { product_name: ILike(`%${search}%`) } : null,
       order: price ? { price: `${price}` } : null,
     });
 
@@ -62,11 +62,20 @@ export class ProductService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(
+    id: string,
+    { product_name, stock, price, category_id }: UpdateProductDto,
+  ) {
     const product = await this.findOne(id);
-    product.name = updateProductDto.product_name;
-    product.stock = updateProductDto.stock;
-    product.price = updateProductDto.price;
+    const category = await this.categoryRepository.findOne({
+      where: { id: category_id },
+      relations: ['products'],
+    });
+
+    product.product_name = product_name;
+    product.stock = stock;
+    product.price = price;
+    product.category = category;
 
     return await this.productRepository.save(product);
   }

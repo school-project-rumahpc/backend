@@ -17,7 +17,7 @@ export class Products {
   id: string;
 
   @Column()
-  name: string;
+  product_name: string;
 
   @Column()
   stock: number;
