@@ -1,13 +1,5 @@
-import { User } from './entity/user.entity';
-import { JwtGuard } from './../auth/guard/jwt.guard';
+import { Controller, Get, Param } from '@nestjs/common';
 import { UserService } from './user.service';
-import {
-  Controller,
-  Get,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
-import { GetUser } from '../auth/decorator/get-user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -20,12 +12,6 @@ export class UserController {
 
   @Get(':id')
   getUserById(@Param('id') id: string) {
-    return this.userService.findById(id)
-  }
-
-  @UseGuards(JwtGuard)
-  @Get('me')
-  getMe(@GetUser() user: User) {
-    return user;
+    return this.userService.findById(id);
   }
 }

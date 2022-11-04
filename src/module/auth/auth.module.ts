@@ -1,14 +1,13 @@
-import { RoleModule } from './../role/role.module';
-import { AuthHelper } from './helper/auth.helper';
-import { JwtModule } from '@nestjs/jwt';
-import { UserModule } from './../user/user.module';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { User } from './../user/entity/user.entity';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtConfig } from 'src/config/jwt.config';
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { RoleModule } from './../role/role.module';
+import { User } from './../user/entity/user.entity';
+import { UserModule } from './../user/user.module';
 import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Module({
@@ -23,6 +22,6 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     RoleModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, AuthHelper],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

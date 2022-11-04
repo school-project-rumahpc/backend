@@ -1,5 +1,9 @@
+import * as bcrypt from 'bcrypt';
+import { Exclude } from 'class-transformer';
+import { Role } from 'src/module/role/entities/role.entity';
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -9,9 +13,6 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { Exclude } from 'class-transformer';
-import { Role } from 'src/module/role/entities/role.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -43,7 +44,8 @@ export class User {
   updated_at: Date;
 
   @BeforeInsert()
-  async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
+  @BeforeUpdate()
+  hashPassword() {
+    this.password = bcrypt.hashSync(this.password, 10);
   }
 }

@@ -1,18 +1,19 @@
-import { Category } from '../category/entity/category.entity';
-import { Details } from './entity/details.entity';
 import {
-  Injectable,
   HttpException,
   HttpStatus,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
+import { Category } from '../category/entity/category.entity';
 import {
   CreateProductDetailsDto,
   CreateProductDto,
+  UpdateProductDetailsDto,
   UpdateProductDto,
 } from './dto';
+import { Details } from './entity/details.entity';
 import { Products } from './entity/product.entity';
 
 @Injectable()
@@ -35,7 +36,7 @@ export class ProductService {
   findAllProducts() {
     return this.productRepository.find({
       order: { id: 'ASC' },
-      relations: ['details'],
+      relations: ['category', 'details'],
     });
   }
 
@@ -86,16 +87,31 @@ export class ProductService {
     return `Product with id: ${id} has deleted`;
   }
 
-  async createProductDetails(
-    id: string,
-    createProductDetails: CreateProductDetailsDto,
-  ) {
-    const product = await this.findOne(id);
+  getAllDetails() {
+    return this.detailsRepository.find({
+      relations: ['product'],
+      order: { id: 'ASC' },
+    });
+  }
 
-    const newDetails = this.detailsRepository.create(createProductDetails);
-    const saveDetails = await this.detailsRepository.save(newDetails);
-    product.details = saveDetails;
+  async createProductDetails(dto: CreateProductDetailsDto, product: Products) {
+    const details = await this.detailsRepository.save(dto);
 
-    return this.productRepository.save(product);
+    product.details = details;
+    await this.productRepository.save(product);
+
+    return details;
+  }
+
+  async updateProductDetails(id: string, dto: UpdateProductDetailsDto) {
+    const details = await this.detailsRepository.findOne({
+      where: { id },
+      relations: ['product'],
+    });
+    const product = await this.findOne(dto.product_id);
+
+    details.product = product;
+
+    return await this.detailsRepository.save(details);
   }
 }

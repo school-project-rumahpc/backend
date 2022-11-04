@@ -1,22 +1,21 @@
-import { CategoryService } from './../category/category.service';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
-  Req,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
+import { CategoryService } from './../category/category.service';
 import {
   CreateProductDetailsDto,
   CreateProductDto,
   UpdateProductDto,
 } from './dto';
-import { Request } from 'express';
+import { UpdateProductDetailsDto } from './dto/update-product-details.dto';
+import { ProductService } from './product.service';
 
 @Controller('product')
 export class ProductController {
@@ -26,20 +25,26 @@ export class ProductController {
   ) {}
 
   @Post()
-  async createProduct(@Body() createProductDto: CreateProductDto) {
-    const category = await this.categoryService.findOne(
-      createProductDto.category_id,
-    );
+  async createProduct(@Body() dto: CreateProductDto) {
+    const category = await this.categoryService.findOne(dto.category_id);
 
-    return await this.productService.create(createProductDto, category);
+    return await this.productService.create(dto, category);
   }
 
   @Get()
-  async getProducts(@Query('s') search: string, @Query('price') price: any) {
-    if (search || price) {
-      return await this.productService.filterProducts(search, price);
+  async getProducts(
+    @Query('product_name') product_name: string,
+    @Query('price') price: any,
+  ) {
+    if (product_name || price) {
+      return await this.productService.filterProducts(product_name, price);
     }
     return await this.productService.findAllProducts();
+  }
+
+  @Get('details')
+  findAllDetails() {
+    return this.productService.getAllDetails();
   }
 
   @Get(':id')
@@ -57,14 +62,14 @@ export class ProductController {
     return this.productService.remove(id);
   }
 
-  @Post(':id/details')
-  createProductDetails(
-    @Param('id') id: string,
-    @Body() createProductDetailsDto: CreateProductDetailsDto,
-  ) {
-    return this.productService.createProductDetails(
-      id,
-      createProductDetailsDto,
-    );
+  @Post('/details')
+  async createProductDetails(@Body() dto: CreateProductDetailsDto) {
+    const product = await this.productService.findOne(dto.product_id);
+    return this.productService.createProductDetails(dto, product);
+  }
+
+  @Patch(':id/details')
+  updateDetails(@Param('id') id: string, @Body() dto: UpdateProductDetailsDto) {
+    return this.productService.updateProductDetails(id, dto);
   }
 }

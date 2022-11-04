@@ -1,9 +1,9 @@
-import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entity/user.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '../role/entities/role.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { User } from './entity/user.entity';
 
 @Injectable()
 export class UserService {
@@ -49,11 +49,12 @@ export class UserService {
   }
 
   async create(dto: CreateUserDto, role: Role) {
-    const newUser = await this.userRepository.save(dto);
+    const user = this.userRepository.create(dto);
+    await this.userRepository.save(user);
 
-    role.users = [...role.users, newUser];
+    role.users = [...role.users, user];
     await this.roleRepository.save(role);
 
-    return newUser;
+    return user;
   }
 }
