@@ -1,19 +1,19 @@
-import { UserService } from './../user/user.service';
-import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from './../user/dto/create-user.dto';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
-  Post,
   HttpStatus,
+  Post,
+  Req,
   Res,
   UnauthorizedException,
-  Req,
-  Get,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Request, Response } from 'express';
+import { CreateUserDto } from './../user/dto/create-user.dto';
+import { UserService } from './../user/user.service';
 import { AuthService } from './auth.service';
-import { Response, Request } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(

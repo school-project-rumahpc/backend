@@ -27,4 +27,7 @@ export class CreateProductDetailsDto {
 
   @IsOptional()
   casing: string;
+
+  @IsNotEmpty()
+  product_id: string;
 }

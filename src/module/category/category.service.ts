@@ -1,8 +1,8 @@
-import { Category } from './entity/category.entity';
-import { Global, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Global, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import { Category } from './entity/category.entity';
 
 @Global()
 @Injectable()

@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
 } from '@nestjs/common';
-import { RoleService } from './role.service';
+import { Roles } from 'src/custom-decorator/roles.decorator';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { Roles } from 'src/custom-decorator/roles.decorator';
 import { Role } from './role.enum';
+import { RoleService } from './role.service';
 
 @Controller('role')
 export class RoleController {

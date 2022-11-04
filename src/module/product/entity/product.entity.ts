@@ -1,4 +1,4 @@
-import { Details } from './details.entity';
+import { Category } from 'src/module/category/entity/category.entity';
 import {
   Column,
   CreateDateColumn,
@@ -9,7 +9,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Category } from 'src/module/category/entity/category.entity';
+import { Details } from './details.entity';
 
 @Entity({ name: 'products' })
 export class Products {
@@ -17,7 +17,7 @@ export class Products {
   id: string;
 
   @Column()
-  name: string;
+  product_name: string;
 
   @Column()
   stock: number;
@@ -43,4 +43,5 @@ export class Products {
   })
   @JoinColumn({ name: 'category_id' })
   category: Category;
+  product: Details[];
 }

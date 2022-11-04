@@ -1,12 +1,13 @@
-import { Products } from './product.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Products } from './product.entity';
 
 @Entity({ name: 'product_details' })
 export class Details {
@@ -46,5 +47,6 @@ export class Details {
   @OneToOne(() => Products, (product) => product.details, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'product_id' })
   product: Products;
 }
