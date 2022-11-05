@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -24,8 +25,17 @@ export class ProductService {
     @InjectRepository(Products) private productRepository: Repository<Products>,
     @InjectRepository(Details) private detailsRepository: Repository<Details>,
   ) {}
-  async create(createProductDto: CreateProductDto, category: Category) {
-    const newProduct = await this.productRepository.save(createProductDto);
+  async create(dto: CreateProductDto, category: Category) {
+    // check product in database
+    const productInDb = await this.productRepository.findOne({
+      where: [{ id: dto.id }, { product_name: dto.product_name }],
+    });
+
+    if (productInDb)
+      throw new BadRequestException('Product has already exists');
+
+    // Creating Product
+    const newProduct = await this.productRepository.save(dto);
 
     category.products = [...category.products, newProduct];
     await this.categoryRepository.save(category);
@@ -35,7 +45,6 @@ export class ProductService {
 
   findAllProducts() {
     return this.productRepository.find({
-      order: { id: 'ASC' },
       relations: ['category', 'details'],
     });
   }
@@ -65,7 +74,7 @@ export class ProductService {
 
   async update(
     id: string,
-    { product_name, stock, price, category_id }: UpdateProductDto,
+    { product_name, stock, price, image, category_id }: UpdateProductDto,
   ) {
     const product = await this.findOne(id);
     const category = await this.categoryRepository.findOne({
@@ -90,13 +99,14 @@ export class ProductService {
   getAllDetails() {
     return this.detailsRepository.find({
       relations: ['product'],
-      order: { id: 'ASC' },
     });
   }
 
   async createProductDetails(dto: CreateProductDetailsDto, product: Products) {
-    const details = await this.detailsRepository.save(dto);
+    const details = this.detailsRepository.create(dto);
 
+    details.product = product;
+    await this.detailsRepository.save(details);
     product.details = details;
     await this.productRepository.save(product);
 

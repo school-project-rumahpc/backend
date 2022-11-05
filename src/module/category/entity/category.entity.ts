@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'category' })
+@Entity({ name: 'category', orderBy: { id: 'ASC' } })
 export class Category {
   @PrimaryColumn()
   id: string;

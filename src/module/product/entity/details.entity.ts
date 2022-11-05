@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -9,7 +10,7 @@ import {
 } from 'typeorm';
 import { Products } from './product.entity';
 
-@Entity({ name: 'product_details' })
+@Entity({ name: 'product_details', orderBy: { id: 'ASC' } })
 export class Details {
   @PrimaryColumn()
   id: string;
@@ -49,4 +50,9 @@ export class Details {
   })
   @JoinColumn({ name: 'product_id' })
   product: Products;
+
+  @BeforeInsert()
+  generateId() {
+    this.id = `${this.product.id}D`;
+  }
 }

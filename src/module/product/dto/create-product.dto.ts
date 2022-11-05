@@ -14,7 +14,7 @@ export class CreateProductDto {
   @IsInt()
   price: number;
 
-  image: string;
+  image: string[];
 
   @IsNotEmpty()
   category_id: string;

@@ -11,9 +11,9 @@ import {
 } from 'typeorm';
 import { Details } from './details.entity';
 
-@Entity({ name: 'products' })
+@Entity({ name: 'products', orderBy: { id: 'ASC' } })
 export class Products {
-  @PrimaryColumn({ nullable: false })
+  @PrimaryColumn({ nullable: false, unique: true })
   id: string;
 
   @Column()
@@ -25,8 +25,8 @@ export class Products {
   @Column()
   price: number;
 
-  @Column({ nullable: true })
-  image: string;
+  @Column('simple-array', { nullable: true, array: true, default: [] })
+  image: string[];
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

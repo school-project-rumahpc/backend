@@ -8,7 +8,7 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
 
   price: number;
 
-  image: string;
+  image: string[];
 
   category_id: string;
 }
