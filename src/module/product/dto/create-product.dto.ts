@@ -8,13 +8,12 @@ export class CreateProductDto {
   product_name: string;
 
   @IsNotEmpty()
+  @IsInt()
   stock: number;
 
   @IsNotEmpty()
   @IsInt()
   price: number;
-
-  image: string[];
 
   @IsNotEmpty()
   category_id: string;

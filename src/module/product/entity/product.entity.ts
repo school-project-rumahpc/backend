@@ -5,11 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Details } from './details.entity';
+import { Images } from './image.entity';
 
 @Entity({ name: 'products', orderBy: { id: 'ASC' } })
 export class Products {
@@ -25,14 +27,8 @@ export class Products {
   @Column()
   price: number;
 
-  @Column('simple-array', { nullable: true, array: true, default: [] })
-  image: string[];
-
-  @CreateDateColumn({ type: 'timestamptz' })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updated_at: Date;
+  @OneToMany(() => Images, (images) => images.product, { onDelete: 'CASCADE' })
+  images: Images[];
 
   @OneToOne(() => Details, (details) => details.product)
   @JoinColumn({ name: 'details_id' })
@@ -44,4 +40,10 @@ export class Products {
   @JoinColumn({ name: 'category_id' })
   category: Category;
   product: Details[];
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updated_at: Date;
 }

@@ -19,7 +19,7 @@ export class CategoryService {
 
   findAll() {
     return this.categoryRepository.find({
-      relations: ['products', 'products.details'],
+      relations: ['products', 'products.details', 'products.images'],
       order: { products: { id: 'ASC' } },
     });
   }
