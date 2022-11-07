@@ -27,10 +27,10 @@ export class AuthService {
 
   async register(dto: CreateUserDto) {
     // Get User's email
-    const { email } = dto;
+    const { email, username } = dto;
 
     // check if the user exists in the db
-    const userInDb = await this.userService.findByEmail(email);
+    const userInDb = await this.userService.findBy(email, username);
 
     if (userInDb)
       throw new BadRequestException(
@@ -63,9 +63,9 @@ export class AuthService {
     });
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, username: string, password: string) {
     // Check user in database
-    const user = await this.userService.findByEmail(email);
+    const user = await this.userService.findBy(email, username);
 
     if (!user) {
       throw new NotFoundException(`User not found!`);

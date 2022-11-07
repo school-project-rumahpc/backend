@@ -49,9 +49,10 @@ export class AuthController {
   async login(
     @Body('email') email: string,
     @Body('password') password: string,
+    @Body('username') username: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = await this.authService.login(email, password);
+    const token = await this.authService.login(email, username, password);
 
     res.cookie('jwt', token, { httpOnly: true });
     return {
@@ -59,24 +60,6 @@ export class AuthController {
     };
   }
 
-  @Get('user')
-  async users(@Req() request: Request) {
-    try {
-      const cookie = request.cookies['jwt'];
-
-      const data = await this.jwtService.verifyAsync(cookie);
-
-      if (!data) {
-        throw new UnauthorizedException();
-      }
-
-      const user = await this.userService.findById(data['id']);
-
-      return user;
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
-  }
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('jwt');

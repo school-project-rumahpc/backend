@@ -33,7 +33,7 @@ export class User {
   @Column()
   password: string;
 
-  @ManyToOne(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
