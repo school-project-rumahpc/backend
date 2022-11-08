@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsInt } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 import { CreateProductDto } from './create-product.dto';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
@@ -11,7 +11,8 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsInt()
   price: number;
 
-  images_id: string;
+  @IsString({ each: true })
+  images: string[];
 
   category_id: string;
 

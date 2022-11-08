@@ -5,13 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Details } from './details.entity';
-import { Images } from './image.entity';
 
 @Entity({ name: 'products', orderBy: { id: 'ASC' } })
 export class Products {
@@ -27,10 +25,13 @@ export class Products {
   @Column()
   price: number;
 
-  @OneToMany(() => Images, (images) => images.product, { onDelete: 'CASCADE' })
-  images: Images[];
+  @Column('text', { array: true, default: [] })
+  images: string[];
 
-  @OneToOne(() => Details, (details) => details.product)
+  @OneToOne(() => Details, (details) => details.product, {
+    eager: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'details_id' })
   details: Details;
 

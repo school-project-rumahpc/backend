@@ -7,7 +7,6 @@ import { Config } from './config/main.config';
 import { AuthModule } from './module/auth/auth.module';
 import { CategoryModule } from './module/category/category.module';
 import { ProductModule } from './module/product/product.module';
-import { RoleModule } from './module/role/role.module';
 import { UserModule } from './module/user/user.module';
 
 @Module({
@@ -21,7 +20,6 @@ import { UserModule } from './module/user/user.module';
     ProductModule,
     AuthModule,
     UserModule,
-    RoleModule,
   ],
   providers: [
     // Add Global Interceptors

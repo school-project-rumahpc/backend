@@ -7,7 +7,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RoleService } from '../role/role.service';
 import { User } from '../user/entity/user.entity';
 import { UserService } from '../user/user.service';
 import { CreateUserDto } from './../user/dto/create-user.dto';
@@ -18,7 +17,6 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private config: ConfigService,
-    private roleService: RoleService,
   ) {}
 
   validatePassword(password: string, userPassword: string): boolean {
@@ -30,18 +28,14 @@ export class AuthService {
     const { email, username } = dto;
 
     // check if the user exists in the db
-    const userInDb = await this.userService.findBy(email, username);
+    const userInDb =
+      (await this.userService.findByName(username)) ||
+      (await this.userService.findByEmail(email));
 
-    if (userInDb)
-      throw new BadRequestException(
-        `User with email ${email} has already exists!`,
-      );
-
-    // Set User Role
-    const role = await this.roleService.findByName(dto.role_name);
+    if (userInDb) throw new BadRequestException(`User has already exists!`);
 
     // Creating User
-    const user = await this.userService.create(dto, role);
+    const user = await this.userService.create(dto);
     const { password, ...result } = user;
 
     return result;
@@ -63,9 +57,9 @@ export class AuthService {
     });
   }
 
-  async login(email: string, username: string, password: string) {
+  async login(emailOrUsername: string, password: string) {
     // Check user in database
-    const user = await this.userService.findBy(email, username);
+    const user = await this.userService.findUser(emailOrUsername);
 
     if (!user) {
       throw new NotFoundException(`User not found!`);

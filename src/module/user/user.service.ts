@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Role } from '../role/entities/role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 
@@ -9,11 +8,10 @@ import { User } from './entity/user.entity';
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
 
   findAll() {
-    return this.userRepository.find({ relations: ['role'] });
+    return this.userRepository.find();
   }
 
   async findByName(username: string) {
@@ -28,20 +26,8 @@ export class UserService {
     }
   }
 
-  async findById(id: string) {
-    const user = await this.userRepository.findOneBy({ id });
-
-    try {
-      return user;
-    } catch (err) {
-      throw new BadRequestException(`User with id: ${id} not found`);
-    }
-  }
-
-  async findBy(email: string, username: string) {
-    const user = await this.userRepository.findOne({
-      where: [{ email }, { username }],
-    });
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findOneBy({ email });
 
     try {
       return user;
@@ -50,13 +36,33 @@ export class UserService {
     }
   }
 
-  async create(dto: CreateUserDto, role: Role) {
+  async findById(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    try {
+      return user;
+    } catch (err) {
+      throw new BadRequestException(`User with id: ${id} not found`);
+    }
+  }
+
+  async findUser(emailOrUsername: string) {
+    const user = await this.userRepository.findOne({
+      where: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    });
+
+    try {
+      return user;
+    } catch (err) {
+      throw new BadRequestException(`User not found`);
+    }
+  }
+
+  async create(dto: CreateUserDto) {
     const user = this.userRepository.create(dto);
-    await this.userRepository.save(user);
 
-    role.users = [...role.users, user];
-    await this.roleRepository.save(role);
-
-    return user;
+    return await this.userRepository.save(user);
   }
 }

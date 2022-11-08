@@ -1,6 +1,5 @@
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
-import { Role } from 'src/module/role/entities/role.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -8,11 +7,10 @@ import {
   CreateDateColumn,
   Entity,
   Generated,
-  JoinColumn,
-  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Role } from '../enum/role.enum';
 
 @Entity({ name: 'users' })
 export class User {
@@ -20,7 +18,7 @@ export class User {
   @Generated('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   username: string;
 
   @Column({ unique: true })
@@ -29,13 +27,12 @@ export class User {
   @Column()
   phone: string;
 
+  @Column({ type: 'enum', enum: Role, default: [Role.USER] })
+  roles: Role[];
+
   @Exclude()
   @Column()
   password: string;
-
-  @ManyToOne(() => Role, (role) => role.users, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'role_id' })
-  role: Role;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

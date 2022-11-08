@@ -8,15 +8,15 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { Roles } from 'src/custom-decorator/roles.decorator';
+import { Role } from '../user/enum/role.enum';
 import { CategoryService } from './../category/category.service';
 import {
-  CreateImageDto,
   CreateProductDetailsDto,
   CreateProductDto,
-  UpdateImageDto,
+  UpdateProductDetailsDto,
   UpdateProductDto,
 } from './dto';
-import { UpdateProductDetailsDto } from './dto/update-product-details.dto';
 import { ProductService } from './product.service';
 
 @Controller('product')
@@ -45,11 +45,7 @@ export class ProductController {
     return this.productService.findAllDetails();
   }
 
-  @Get('images')
-  getAllImages() {
-    return this.productService.findAllImages();
-  }
-
+  @Roles(Role.ADMIN)
   @Post()
   async createProduct(@Body() dto: CreateProductDto) {
     const category = await this.categoryService.findOne(dto.category_id);
@@ -57,16 +53,11 @@ export class ProductController {
     return await this.productService.create(dto, category);
   }
 
+  @Roles(Role.ADMIN)
   @Post('/details')
   async createProductDetails(@Body() dto: CreateProductDetailsDto) {
     const product = await this.productService.findOne(dto.product_id);
     return this.productService.createDetails(dto, product);
-  }
-
-  @Post('/images')
-  async createProductImages(@Body() dto: CreateImageDto) {
-    const product = await this.productService.findOne(dto.product_id);
-    return this.productService.createImages(dto, product);
   }
 
   @Get(':id')
@@ -74,23 +65,21 @@ export class ProductController {
     return this.productService.findOne(id);
   }
 
+  @Roles(Role.ADMIN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(id, updateProductDto);
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productService.remove(id);
   }
 
+  @Roles(Role.ADMIN)
   @Patch(':id/details')
   updateDetails(@Param('id') id: string, @Body() dto: UpdateProductDetailsDto) {
     return this.productService.updateProductDetails(id, dto);
-  }
-
-  @Patch(':id/images')
-  updateImage(@Param('id') id: number, @Body() dto: UpdateImageDto) {
-    return this.productService.updateImage(id, dto);
   }
 }

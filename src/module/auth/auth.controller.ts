@@ -7,36 +7,20 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { CreateUserDto } from './../user/dto/create-user.dto';
-import { UserService } from './../user/user.service';
 import { AuthService } from './auth.service';
+import { JwtGuard } from './guard';
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private userService: UserService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Get('user')
+  @UseGuards(JwtGuard)
   async authUser(@Req() req: Request) {
-    try {
-      const cookie = req.cookies['jwt'];
-
-      const data = await this.jwtService.verifyAsync(cookie);
-
-      if (!data) throw new UnauthorizedException();
-
-      const user = await this.userService.findById(data['sub']);
-
-      return user;
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
+    return req.user;
   }
 
   @Post('register')
@@ -47,12 +31,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(
-    @Body('email') email: string,
+    @Body('emailOrUsername') emailOrUsername: string,
     @Body('password') password: string,
-    @Body('username') username: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = await this.authService.login(email, username, password);
+    const token = await this.authService.login(emailOrUsername, password);
 
     res.cookie('jwt', token, { httpOnly: true });
     return {
