@@ -96,7 +96,7 @@ export class ProductService {
     return details;
   }
 
-  async update(
+  async updateProduct(
     id: string,
     { product_name, stock, price, images, category_id }: UpdateProductDto,
   ) {
@@ -127,7 +127,7 @@ export class ProductService {
     return await this.detailsRepository.save(details);
   }
 
-  async remove(id: string) {
+  async deleteProduct(id: string) {
     const product = await this.findOne(id);
     await this.productRepository.remove(product);
     return `Product with id: ${id} has deleted`;

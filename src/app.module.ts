@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseConfig } from './config/database.config';
 import { Config } from './config/main.config';
 import { AuthModule } from './module/auth/auth.module';
+import { CartModule } from './module/cart/cart.module';
 import { CategoryModule } from './module/category/category.module';
 import { ProductModule } from './module/product/product.module';
 import { UserModule } from './module/user/user.module';
@@ -20,6 +21,7 @@ import { UserModule } from './module/user/user.module';
     ProductModule,
     AuthModule,
     UserModule,
+    CartModule,
   ],
   providers: [
     // Add Global Interceptors

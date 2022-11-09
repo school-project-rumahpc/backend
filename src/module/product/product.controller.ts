@@ -6,7 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  Query,
+  Query
 } from '@nestjs/common';
 import { Roles } from 'src/custom-decorator/roles.decorator';
 import { Role } from '../user/enum/role.enum';
@@ -15,7 +15,7 @@ import {
   CreateProductDetailsDto,
   CreateProductDto,
   UpdateProductDetailsDto,
-  UpdateProductDto,
+  UpdateProductDto
 } from './dto';
 import { ProductService } from './product.service';
 
@@ -68,13 +68,13 @@ export class ProductController {
   @Roles(Role.ADMIN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(id, updateProductDto);
+    return this.productService.updateProduct(id, updateProductDto);
   }
 
   @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.productService.remove(id);
+    return this.productService.deleteProduct(id);
   }
 
   @Roles(Role.ADMIN)
