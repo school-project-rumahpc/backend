@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
+import { Cart } from 'src/module/cart/entity/cart.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -7,6 +8,8 @@ import {
   CreateDateColumn,
   Entity,
   Generated,
+  JoinColumn,
+  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -33,6 +36,10 @@ export class User {
   @Exclude()
   @Column()
   password: string;
+
+  @OneToOne(() => Cart, (cart) => cart.user)
+  @JoinColumn({ name: 'cart_id' })
+  cart: Cart;
 
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;

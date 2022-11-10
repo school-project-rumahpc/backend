@@ -33,13 +33,14 @@ export class AuthController {
   async login(
     @Body('emailOrUsername') emailOrUsername: string,
     @Body('password') password: string,
-    @Res({ passthrough: true }) res: Response,
   ) {
     const token = await this.authService.login(emailOrUsername, password);
 
-    res.cookie('jwt', token, { httpOnly: true });
+    // save token in cookie
+    // res.cookie('jwt', token);
+
     return {
-      message: 'Login success!',
+      access_token: token,
     };
   }
 
@@ -48,7 +49,7 @@ export class AuthController {
     response.clearCookie('jwt');
 
     return {
-      message: 'success',
+      message: 'Logout success',
     };
   }
 }
