@@ -3,13 +3,16 @@ import { IsInt, IsString } from 'class-validator';
 import { CreateProductDto } from './create-product.dto';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
-  product_name: string;
+  name: string;
 
   @IsInt()
   stock: number;
 
   @IsInt()
   price: number;
+
+  @IsInt()
+  qty: number;
 
   @IsString({ each: true })
   images: string[];

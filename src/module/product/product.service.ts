@@ -34,7 +34,7 @@ export class ProductService {
   async filterProducts(search: string, price: any) {
     const products = await this.productRepository.find({
       relations: ['category', 'details'],
-      where: search ? { product_name: ILike(`%${search}%`) } : null,
+      where: search ? { name: ILike(`%${search}%`) } : null,
       order: price ? { price: `${price}` } : null,
     });
 
@@ -70,7 +70,7 @@ export class ProductService {
   async create(dto: CreateProductDto, category: Category) {
     // check product in database
     const productInDb = await this.productRepository.findOne({
-      where: [{ id: dto.id }, { product_name: dto.product_name }],
+      where: [{ id: dto.id }, { name: dto.name }],
     });
 
     if (productInDb)
@@ -98,7 +98,7 @@ export class ProductService {
 
   async updateProduct(
     id: string,
-    { product_name, stock, price, images, category_id }: UpdateProductDto,
+    { name, stock, price, qty, images, category_id }: UpdateProductDto,
   ) {
     const product = await this.findOne(id);
     const category = await this.categoryRepository.findOne({
@@ -106,9 +106,10 @@ export class ProductService {
       relations: ['products'],
     });
 
-    product.product_name = product_name;
+    product.name = name;
     product.stock = stock;
     product.price = price;
+    product.qty = qty;
     product.images = images;
     product.category = category;
 

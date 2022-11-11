@@ -17,7 +17,7 @@ export class Products {
   id: string;
 
   @Column()
-  product_name: string;
+  name: string;
 
   @Column()
   stock: number;
@@ -25,8 +25,14 @@ export class Products {
   @Column()
   price: number;
 
+  @Column({ default: 1 })
+  qty: number;
+
   @Column('text', { array: true, default: [] })
   images: string[];
+
+  @Column({ default: 0 })
+  sub_total: number;
 
   @OneToOne(() => Details, (details) => details.product, {
     eager: true,
