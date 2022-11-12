@@ -44,7 +44,7 @@ export class ProductService {
 
   async filterProductDate(date: any) {
     return await this.productRepository.find({
-      order: { created_at: `${date}`, updated_at: `${date}` },
+      order: { createdAt: `${date}`, updatedAt: `${date}` },
       relations: ['category', 'details'],
     });
   }
@@ -63,6 +63,7 @@ export class ProductService {
 
   findAllDetails() {
     return this.detailsRepository.find({
+      select: { product: { id: true, name: true } },
       relations: ['product'],
     });
   }
@@ -98,7 +99,7 @@ export class ProductService {
 
   async updateProduct(
     id: string,
-    { name, stock, price, qty, images, category_id }: UpdateProductDto,
+    { name, stock, price, images, category_id }: UpdateProductDto,
   ) {
     const product = await this.findOne(id);
     const category = await this.categoryRepository.findOne({
@@ -109,7 +110,6 @@ export class ProductService {
     product.name = name;
     product.stock = stock;
     product.price = price;
-    product.qty = qty;
     product.images = images;
     product.category = category;
 

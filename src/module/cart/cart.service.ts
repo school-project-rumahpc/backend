@@ -13,11 +13,17 @@ export class CartService {
     return this.cartRepository.find();
   }
 
-  async getCartById(id: number) {
-    const cart = await this.cartRepository.findOneBy({ id });
+  async getCartById(userId: string) {
+    const cart = await this.cartRepository.findOneBy({ userId });
 
     if (!cart) throw new NotFoundException('Cart not found!');
 
     return cart;
+  }
+
+  async createCart(userId: string) {
+    const newCart = this.cartRepository.create({
+      userId,
+    });
   }
 }

@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { Roles } from 'src/custom-decorator/roles.decorator';
+import { JwtGuard } from '../auth/guard';
 import { Role } from '../user/enum/role.enum';
 import { ProductService } from './../product/product.service';
 import { CartService } from './cart.service';
@@ -18,17 +19,16 @@ export class CartController {
     return this.cartService.getAllCart();
   }
 
-  @Get(':id')
-  getCartById(@Param('id') id: number) {
-    return this.cartService.getCartById(id);
+  @UseGuards(JwtGuard)
+  @Get()
+  getCartById(@Req() req: Request) {
+    const userId = req.user['id'];
+    return this.cartService.getCartById(userId);
   }
 
   @Roles(Role.USER)
-  @Post('add/:id')
-  addProductToCart(@Req() req: Request, @Param('id') id: string) {
-    const user = req.user;
-    const product = this.productService.findOne(id);
-
-    return product;
+  @Post('add')
+  addProductToCart(@Req() req: Request) {
+    const user = req.user['id'];
   }
 }

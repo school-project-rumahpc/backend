@@ -36,9 +36,10 @@ export class AuthService {
 
     // Creating User
     const user = await this.userService.create(dto);
-    const { password, ...result } = user;
 
-    return result;
+    return {
+      message: 'Register success!',
+    };
   }
 
   generateToken(user: User) {

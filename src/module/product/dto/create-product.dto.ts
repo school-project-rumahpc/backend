@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -14,10 +14,6 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsInt()
   price: number;
-
-  @IsOptional()
-  @IsInt()
-  qty: number;
 
   @IsString({ each: true })
   images: string[];

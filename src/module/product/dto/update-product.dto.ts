@@ -11,9 +11,6 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsInt()
   price: number;
 
-  @IsInt()
-  qty: number;
-
   @IsString({ each: true })
   images: string[];
 

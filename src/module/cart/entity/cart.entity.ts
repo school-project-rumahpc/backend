@@ -11,20 +11,17 @@ import { User } from './../../user/entity/user.entity';
 @Entity({ name: 'cart', orderBy: { created_at: 'DESC' } })
 export class Cart {
   @PrimaryColumn()
-  id: number;
+  userId: string;
 
-  // @Column({ array: true, default: [] })
-  // products: Products[];
+  @Column({ name: 'total_price', type: 'bigint', default: 0 })
+  totalPrice: number;
 
-  @Column({ type: 'bigint', default: 0 })
-  total_price: number;
-
-  @OneToOne(() => User, (user) => user.cart, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   user: User;
 
-  @CreateDateColumn({ type: 'timestamptz' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt: Date;
 }

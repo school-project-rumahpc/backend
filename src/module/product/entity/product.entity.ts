@@ -25,17 +25,10 @@ export class Products {
   @Column()
   price: number;
 
-  @Column({ default: 1 })
-  qty: number;
-
   @Column('text', { array: true, default: [] })
   images: string[];
 
-  @Column({ default: 0 })
-  sub_total: number;
-
   @OneToOne(() => Details, (details) => details.product, {
-    eager: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'details_id' })
@@ -48,9 +41,9 @@ export class Products {
   category: Category;
   product: Details[];
 
-  @CreateDateColumn({ type: 'timestamptz' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt: Date;
 }
