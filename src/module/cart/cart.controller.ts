@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard } from '../auth/guard';
@@ -21,14 +29,21 @@ export class CartController {
 
   @UseGuards(JwtGuard)
   @Get()
-  getCartById(@Req() req: Request) {
+  getCartByUserId(@Req() req: Request) {
     const userId = req.user['id'];
-    return this.cartService.getCartById(userId);
+    return this.cartService.getCart(userId);
   }
 
-  @Roles(Role.USER)
-  @Post('add')
-  addProductToCart(@Req() req: Request) {
-    const user = req.user['id'];
+  @Post('item')
+  async createItem(@Body('product_id') productId: string) {
+    const product = await this.productService.findOne(productId);
+    return this.cartService.createItem(product);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete()
+  deleteCart(@Req() req: Request) {
+    const userId = req.user['id'];
+    return this.cartService.deleteCart(userId);
   }
 }

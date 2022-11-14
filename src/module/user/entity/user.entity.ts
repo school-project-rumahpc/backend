@@ -37,7 +37,7 @@ export class User {
   @Column()
   password: string;
 
-  @OneToOne(() => Cart, (cart) => cart.user)
+  @OneToOne(() => Cart, (cart) => cart.user, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'cart_id' })
   cart: Cart;
 

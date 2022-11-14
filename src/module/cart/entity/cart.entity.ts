@@ -3,17 +3,24 @@ import {
   CreateDateColumn,
   Entity,
   OneToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './../../user/entity/user.entity';
+import { Item } from './item.entity';
 
 @Entity({ name: 'cart', orderBy: { created_at: 'DESC' } })
 export class Cart {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
   userId: string;
 
-  @Column({ name: 'total_price', type: 'bigint', default: 0 })
+  @Column('jsonb', { array: true, default: [] })
+  items: Item[];
+
+  @Column({ name: 'total_price', default: 0 })
   totalPrice: number;
 
   @OneToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })

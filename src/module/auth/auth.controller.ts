@@ -5,11 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { User } from 'src/custom-decorator/user.decorator';
 import { CreateUserDto } from './../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { JwtGuard } from './guard';
@@ -19,8 +17,8 @@ export class AuthController {
 
   @Get('user')
   @UseGuards(JwtGuard)
-  async authUser(@Req() req: Request) {
-    return req.user;
+  async authUser(@User() user) {
+    return user;
   }
 
   @Post('register')
@@ -41,15 +39,6 @@ export class AuthController {
 
     return {
       access_token: token,
-    };
-  }
-
-  @Post('logout')
-  async logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('jwt');
-
-    return {
-      message: 'Logout success',
     };
   }
 }
