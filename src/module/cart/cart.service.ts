@@ -1,56 +1,39 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Products } from './../product/entity/product.entity';
-import { ProductService } from './../product/product.service';
+import { ProductService } from '../product/product.service';
+import { UserService } from '../user/user.service';
 import { Cart } from './entity/cart.entity';
-import { Item } from './entity/item.entity';
 
 @Injectable()
 export class CartService {
   constructor(
     @InjectRepository(Cart) private cartRepository: Repository<Cart>,
-    @InjectRepository(Item) private itemRepository: Repository<Item>,
     private productService: ProductService,
+    private userService: UserService,
   ) {}
 
-  getAllCart() {
-    return this.cartRepository.find();
-  }
-
-  async getCart(userId: string) {
-    const cart = await this.cartRepository.findOne({
-      where: { userId },
-    });
+  async getAllCarts() {
+    const carts = await this.cartRepository.find({ relations: ['item'] });
 
     try {
-      return cart;
+      return carts;
     } catch (err) {
-      throw new NotFoundException('Cart not found');
+      throw err;
     }
   }
 
-  async createCart(userId: string) {
-    const newCart = this.cartRepository.create({
-      userId,
-    });
+  async addToCart(productId: string, userId: string) {
+    const cartItems = await this.cartRepository.find({ relations: ['item'] });
+    const product = await this.productService.findOne(productId);
+    const authUser = await this.userService.findById(userId);
 
-    return await this.cartRepository.save(newCart);
-  }
-
-  async createItem(product: Products) {
-    const newItem = this.itemRepository.create({ product });
-
-    return await this.itemRepository.save(newItem);
-  }
-
-  async deleteCart(userId: string) {
-    const cart = await this.getCart(userId);
-
-    await this.cartRepository.remove(cart);
-
-    return {
-      message: 'Cart has been deleted',
-    };
+    // check if product is exist
+    if (product) {
+      // check if user has item in cart
+      const cart = cartItems.filter(
+        (item) => item.item.id === productId && item.user.id === userId,
+      );
+    }
   }
 }

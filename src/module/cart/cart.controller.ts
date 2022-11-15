@@ -1,49 +1,22 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
-import { Request } from 'express';
-import { Roles } from 'src/custom-decorator/roles.decorator';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { JwtGuard } from '../auth/guard';
-import { Role } from '../user/enum/role.enum';
-import { ProductService } from './../product/product.service';
 import { CartService } from './cart.service';
 
 @Controller('cart')
 export class CartController {
-  constructor(
-    private cartService: CartService,
-    private productService: ProductService,
-  ) {}
+  constructor(private readonly cartService: CartService) {}
 
-  @Roles(Role.ADMIN)
   @Get()
-  getAll() {
-    return this.cartService.getAllCart();
+  getAllCart() {
+    return this.cartService.getAllCarts();
   }
 
   @UseGuards(JwtGuard)
-  @Get()
-  getCartByUserId(@Req() req: Request) {
-    const userId = req.user['id'];
-    return this.cartService.getCart(userId);
-  }
+  @Post('add')
+  addProductToCart(@GetUser() user, @Body('product_id') productId: string) {
+    const userId = user['id'];
 
-  @Post('item')
-  async createItem(@Body('product_id') productId: string) {
-    const product = await this.productService.findOne(productId);
-    return this.cartService.createItem(product);
-  }
-
-  @UseGuards(JwtGuard)
-  @Delete()
-  deleteCart(@Req() req: Request) {
-    const userId = req.user['id'];
-    return this.cartService.deleteCart(userId);
+    return this.cartService.addToCart(productId, user);
   }
 }

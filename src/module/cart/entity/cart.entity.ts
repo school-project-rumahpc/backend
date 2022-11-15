@@ -1,29 +1,32 @@
+import { Products } from 'src/module/product/entity';
+import { User } from 'src/module/user/entity/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './../../user/entity/user.entity';
-import { Item } from './item.entity';
 
-@Entity({ name: 'cart', orderBy: { created_at: 'DESC' } })
+@Entity({ name: 'cart' })
 export class Cart {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column()
-  userId: string;
+  @ManyToOne(() => Products, (products) => products.carts)
+  @JoinColumn({ name: 'product_id' })
+  item: Products;
 
-  @Column('jsonb', { array: true, default: [] })
-  items: Item[];
+  @Column({ default: 1 })
+  quantity: number;
 
-  @Column({ name: 'total_price', default: 0 })
-  totalPrice: number;
+  @Column({ default: 0 })
+  subTotal: number;
 
-  @OneToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.carts)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

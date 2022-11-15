@@ -1,3 +1,4 @@
+import { Cart } from 'src/module/cart/entity/cart.entity';
 import { Category } from 'src/module/category/entity/category.entity';
 import {
   Column,
@@ -5,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
@@ -40,6 +42,9 @@ export class Products {
   @JoinColumn({ name: 'category_id' })
   category: Category;
   product: Details[];
+
+  @OneToMany(() => Cart, (cart) => cart.item)
+  carts: Cart[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

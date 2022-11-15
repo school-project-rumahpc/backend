@@ -7,19 +7,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Generated,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../enum/role.enum';
 
 @Entity({ name: 'users' })
 export class User {
-  @PrimaryColumn()
-  @Generated('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ type: 'enum', enum: Role, default: [Role.USER] })
+  role: Role[];
 
   @Column({ unique: true })
   username: string;
@@ -30,16 +30,12 @@ export class User {
   @Column()
   phone: string;
 
-  @Column({ type: 'enum', enum: Role, default: [Role.USER] })
-  roles: Role[];
-
   @Exclude()
   @Column()
   password: string;
 
-  @OneToOne(() => Cart, (cart) => cart.user, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'cart_id' })
-  cart: Cart;
+  @OneToMany(() => Cart, (cart) => cart.user)
+  carts: Cart[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

@@ -11,7 +11,7 @@ export class UserService {
   ) {}
 
   findAll() {
-    return this.userRepository.find({ relations: ['cart'] });
+    return this.userRepository.find({ relations: ['carts'] });
   }
 
   async findByName(username: string) {
