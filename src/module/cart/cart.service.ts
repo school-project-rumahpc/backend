@@ -25,7 +25,10 @@ export class CartService {
   }
 
   async getUserCart(userId: string) {
-    const carts = await this.getAllCarts();
+    const carts = await this.cartRepository.find({
+      relations: ['item'],
+      order: { createdAt: 'DESC' },
+    });
     return carts.filter((cart) => cart.user.id === userId);
   }
 
@@ -52,9 +55,13 @@ export class CartService {
 
         return await this.cartRepository.save(newItem);
       } else {
+        const stock = cart[0].item.stock;
         // Update item quantity
         const quantity = (cart[0].quantity += 1);
-        const subTotal = cart[0].subTotal * quantity;
+        if (quantity > stock) {
+          return 'Stock is not enough';
+        }
+        const subTotal = cart[0].item.price * quantity;
 
         await this.cartRepository.update(cart[0].id, {
           quantity,
@@ -66,5 +73,10 @@ export class CartService {
     }
 
     return null;
+  }
+
+  async removeItemCart(productId: string, userId: string) {
+    const product = await this.productService.findOne(productId);
+    const user = await this.userService.findById(userId);
   }
 }
