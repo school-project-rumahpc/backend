@@ -34,7 +34,7 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => Cart, (cart) => cart.user)
+  @OneToMany(() => Cart, (cart) => cart.user, { onDelete: 'SET NULL' })
   carts: Cart[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

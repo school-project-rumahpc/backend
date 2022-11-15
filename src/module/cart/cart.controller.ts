@@ -15,8 +15,8 @@ export class CartController {
   @UseGuards(JwtGuard)
   @Post('add')
   addProductToCart(@GetUser() user, @Body('product_id') productId: string) {
-    const userId = user['id'];
+    const userId = user.id;
 
-    return this.cartService.addToCart(productId, user);
+    return this.cartService.addToCart(productId, userId);
   }
 }
