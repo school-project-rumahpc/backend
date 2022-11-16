@@ -26,7 +26,6 @@ export class Cart {
   subTotal: number;
 
   @ManyToOne(() => User, (user) => user.carts, {
-    eager: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })

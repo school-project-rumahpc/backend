@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductService } from '../product/product.service';
@@ -15,7 +21,9 @@ export class CartService {
   ) {}
 
   async getAllCarts() {
-    const carts = await this.cartRepository.find({ relations: ['item'] });
+    const carts = await this.cartRepository.find({
+      relations: ['item', 'user'],
+    });
 
     try {
       return carts;
@@ -24,12 +32,29 @@ export class CartService {
     }
   }
 
+  async getCartById(id: number) {
+    const cart = await this.cartRepository.findOne({
+      where: { id },
+      relations: ['item', 'user'],
+    });
+
+    try {
+      return cart;
+    } catch (err) {
+      throw new NotFoundException('Cart not found!');
+    }
+  }
+
   async getUserCart(userId: string) {
     const carts = await this.cartRepository.find({
-      relations: ['item'],
+      relations: ['item', 'user'],
       order: { createdAt: 'DESC' },
     });
-    return carts.filter((cart) => cart.user.id === userId);
+    return carts.filter((cart) => {
+      cart.user.id === userId;
+      delete cart.user;
+      return cart;
+    });
   }
 
   async addToCart(productId: string, userId: string) {
@@ -59,7 +84,7 @@ export class CartService {
         // Update item quantity
         const quantity = (cart[0].quantity += 1);
         if (quantity > stock) {
-          return 'Stock is not enough';
+          throw new BadRequestException('Sorry, insufficient stock!');
         }
         const subTotal = cart[0].item.price * quantity;
 
@@ -75,8 +100,15 @@ export class CartService {
     return null;
   }
 
-  async removeItemCart(productId: string, userId: string) {
-    const product = await this.productService.findOne(productId);
-    const user = await this.userService.findById(userId);
+  async removeCartById(id: number, userId: string) {
+    const cart = await this.getCartById(id);
+
+    if (cart.user['id'] == userId) {
+      await this.cartRepository.remove(cart);
+
+      return {
+        message: 'Cart succesfully deleted!',
+      };
+    }
   }
 }
