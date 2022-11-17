@@ -83,6 +83,8 @@ export class CartService {
         const stock = cart[0].item.stock;
         // Update item quantity
         const quantity = (cart[0].quantity += 1);
+
+        // check stock of product
         if (quantity > stock) {
           throw new BadRequestException('Sorry, insufficient stock!');
         }
@@ -100,12 +102,29 @@ export class CartService {
     return null;
   }
 
-  async calculateTotalPrice(userId: string) {
-    const user = await this.userService.findById(userId);
+  async editCartQty(userId: string, cartId: number, quantity: number) {
+    const { carts } = await this.userService.findById(userId);
 
-    const allSubTotal = user.carts.map((cart) => cart.subTotal);
+    const cart = carts.find((cart) => cart.id === cartId);
 
-    const totalPrice = allSubTotal.reduce((prev, curr) => prev + curr, 0);
+    if (cart.item.stock < quantity) {
+      throw new BadRequestException('Sorry, insufficient stock!');
+    }
+    cart.quantity = quantity;
+
+    const subTotal = (cart.subTotal = cart.item.price * quantity);
+
+    await this.cartRepository.update(cartId, { quantity, subTotal });
+
+    return cart;
+  }
+
+  async calculateCarts(userId: string) {
+    const { carts } = await this.userService.findById(userId);
+
+    const totalPrice = carts
+      .map((cart) => cart.subTotal)
+      .reduce((prev, curr) => prev + curr, 0);
 
     return totalPrice;
   }

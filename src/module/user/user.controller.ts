@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   forwardRef,
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -45,7 +47,7 @@ export class UserController {
   getTotalPriceCart(@GetUser() user) {
     const userId = user['id'];
 
-    return this.cartService.calculateTotalPrice(userId);
+    return this.cartService.calculateCarts(userId);
   }
 
   @Get(':id')
@@ -62,6 +64,16 @@ export class UserController {
     file: Express.Multer.File,
   ) {
     console.log(file);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('carts')
+  editCartQty(
+    @GetUser() user,
+    @Body('cart_id') cartId: number,
+    @Body('quantity') quantity: number,
+  ) {
+    return this.cartService.editCartQty(user.id, cartId, quantity);
   }
 
   @UseGuards(JwtGuard)
