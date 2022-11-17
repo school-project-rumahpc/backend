@@ -41,6 +41,7 @@ export class UserService {
   async findById(id: string) {
     const user = await this.userRepository.findOne({
       where: { id },
+      relations: ['carts', 'carts.item'],
     });
 
     try {

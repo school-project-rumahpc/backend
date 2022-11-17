@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   forwardRef,
   Get,
   Inject,
@@ -32,11 +33,19 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
-  @Get('cart')
+  @Get('carts')
   getUserCart(@GetUser() user) {
     const userId = user['id'];
 
     return this.cartService.getUserCart(userId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('carts/total')
+  getTotalPriceCart(@GetUser() user) {
+    const userId = user['id'];
+
+    return this.cartService.calculateTotalPrice(userId);
   }
 
   @Get(':id')
@@ -53,5 +62,11 @@ export class UserController {
     file: Express.Multer.File,
   ) {
     console.log(file);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete('carts')
+  deleteAllUserCarts(@GetUser() user) {
+    return this.cartService.removeAllUserCarts(user.id);
   }
 }

@@ -100,6 +100,16 @@ export class CartService {
     return null;
   }
 
+  async calculateTotalPrice(userId: string) {
+    const user = await this.userService.findById(userId);
+
+    const allSubTotal = user.carts.map((cart) => cart.subTotal);
+
+    const totalPrice = allSubTotal.reduce((prev, curr) => prev + curr, 0);
+
+    return totalPrice;
+  }
+
   async removeCartById(id: number, userId: string) {
     const cart = await this.getCartById(id);
 
@@ -107,8 +117,19 @@ export class CartService {
       await this.cartRepository.remove(cart);
 
       return {
-        message: 'Cart succesfully deleted!',
+        message: 'Cart successfully deleted!',
       };
     }
+  }
+
+  async removeAllUserCarts(userId: string) {
+    const user = await this.userService.findById(userId);
+    const userCarts = user.carts;
+
+    await this.cartRepository.remove(userCarts);
+
+    return {
+      message: "All User's cart successfully deleted!",
+    };
   }
 }

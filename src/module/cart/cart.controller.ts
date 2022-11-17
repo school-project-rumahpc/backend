@@ -19,15 +19,12 @@ export class CartController {
   @UseGuards(JwtGuard)
   @Post('add')
   addProductToCart(@GetUser() user, @Body('product_id') productId: string) {
-    const userId = user.id;
-
-    return this.cartService.addToCart(productId, userId);
+    return this.cartService.addToCart(productId, user.id);
   }
 
   @UseGuards(JwtGuard)
   @Delete('delete')
   removeCart(@GetUser() user, @Body('cart_id') cartId: number) {
-    const userId = user.id;
-    return this.cartService.removeCartById(cartId, userId);
+    return this.cartService.removeCartById(cartId, user.id);
   }
 }
