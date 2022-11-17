@@ -1,12 +1,10 @@
 import {
-  Body,
   Controller,
   Delete,
   forwardRef,
   Get,
   Inject,
   Param,
-  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -37,17 +35,13 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('carts')
   getUserCart(@GetUser() user) {
-    const userId = user['id'];
-
-    return this.cartService.getUserCart(userId);
+    return this.cartService.getUserCart(user.id);
   }
 
   @UseGuards(JwtGuard)
   @Get('carts/total')
   getTotalPriceCart(@GetUser() user) {
-    const userId = user['id'];
-
-    return this.cartService.calculateCarts(userId);
+    return this.cartService.calculateCarts(user.id);
   }
 
   @Get(':id')
@@ -67,18 +61,8 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
-  @Patch('carts')
-  editCartQty(
-    @GetUser() user,
-    @Body('cart_id') cartId: number,
-    @Body('quantity') quantity: number,
-  ) {
-    return this.cartService.editCartQty(user.id, cartId, quantity);
-  }
-
-  @UseGuards(JwtGuard)
   @Delete('carts')
-  deleteAllUserCarts(@GetUser() user) {
-    return this.cartService.removeAllUserCarts(user.id);
+  clearCarts(@GetUser() user) {
+    return this.cartService.clearCarts(user.id);
   }
 }

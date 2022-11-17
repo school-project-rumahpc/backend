@@ -45,6 +45,7 @@ export class CartService {
     }
   }
 
+  // load user carts
   async getUserCart(userId: string) {
     const carts = await this.cartRepository.find({
       relations: ['item', 'user'],
@@ -57,10 +58,9 @@ export class CartService {
     });
   }
 
+  // Add to cart
   async addToCart(productId: string, userId: string) {
-    const cartItems = await this.cartRepository.find({
-      relations: ['item', 'user'],
-    });
+    const cartItems = await this.getAllCarts();
     const product = await this.productService.findOne(productId);
     const user = await this.userService.findById(userId);
 
@@ -68,8 +68,10 @@ export class CartService {
     if (product) {
       // check if user has item in cart
       const cart = cartItems.filter(
-        (item) => item.item.id === productId && item.user.id === userId,
+        (cart) => cart.item.id === productId && cart.user.id === userId,
       );
+
+      if (!cart) throw new NotFoundException('Cart not found!');
 
       if (cart.length < 1) {
         const newItem = this.cartRepository.create({
@@ -102,23 +104,7 @@ export class CartService {
     return null;
   }
 
-  async editCartQty(userId: string, cartId: number, quantity: number) {
-    const { carts } = await this.userService.findById(userId);
-
-    const cart = carts.find((cart) => cart.id === cartId);
-
-    if (cart.item.stock < quantity) {
-      throw new BadRequestException('Sorry, insufficient stock!');
-    }
-    cart.quantity = quantity;
-
-    const subTotal = (cart.subTotal = cart.item.price * quantity);
-
-    await this.cartRepository.update(cartId, { quantity, subTotal });
-
-    return cart;
-  }
-
+  // Calculate Total Price Carts
   async calculateCarts(userId: string) {
     const { carts } = await this.userService.findById(userId);
 
@@ -129,6 +115,34 @@ export class CartService {
     return totalPrice;
   }
 
+  // remove cart (-1 quantity)
+  async removeCart(productId: string, userId: string) {
+    const cartItems = await this.getAllCarts();
+    const product = await this.productService.findOne(productId);
+
+    // check if product exist
+    if (product) {
+      // check cart in user
+      const cart = cartItems.find(
+        (cart) => cart.item.id === productId && cart.user.id === userId,
+      );
+
+      if (!cart) throw new NotFoundException('Cart not found!');
+
+      const quantity = (cart.quantity -= 1);
+
+      if (quantity === 0) await this.cartRepository.remove(cart);
+
+      const subTotal = cart.item.price * quantity;
+
+      // update cart
+      await this.cartRepository.update({ id: cart.id }, { quantity, subTotal });
+
+      return { message: 'Remove cart success!' };
+    }
+  }
+
+  // remove cart by id
   async removeCartById(id: number, userId: string) {
     const cart = await this.getCartById(id);
 
@@ -141,7 +155,8 @@ export class CartService {
     }
   }
 
-  async removeAllUserCarts(userId: string) {
+  // remove all user's carts
+  async clearCarts(userId: string) {
     const user = await this.userService.findById(userId);
     const userCarts = user.carts;
 

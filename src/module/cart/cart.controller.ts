@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
@@ -23,8 +31,17 @@ export class CartController {
   }
 
   @UseGuards(JwtGuard)
+  @Delete('remove')
+  removeCart(@GetUser() user, @Body('product_id') productId: string) {
+    return this.cartService.removeCart(productId, user.id);
+  }
+
+  @UseGuards(JwtGuard)
   @Delete('delete')
-  removeCart(@GetUser() user, @Body('cart_id') cartId: number) {
+  removeCartById(
+    @GetUser() user,
+    @Body('cart_id', ParseIntPipe) cartId: number,
+  ) {
     return this.cartService.removeCartById(cartId, user.id);
   }
 }
