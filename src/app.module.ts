@@ -7,6 +7,7 @@ import { Config } from './config/main.config';
 import { AuthModule } from './module/auth/auth.module';
 import { CartModule } from './module/cart/cart.module';
 import { CategoryModule } from './module/category/category.module';
+import { OrderModule } from './module/order/order.module';
 import { ProductModule } from './module/product/product.module';
 import { UserModule } from './module/user/user.module';
 
@@ -22,6 +23,7 @@ import { UserModule } from './module/user/user.module';
     AuthModule,
     UserModule,
     CartModule,
+    OrderModule,
   ],
   providers: [
     // Add Global Interceptors

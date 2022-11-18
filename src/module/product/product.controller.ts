@@ -6,16 +6,18 @@ import {
   Param,
   Patch,
   Post,
-  Query
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { Roles } from 'src/custom-decorator/roles.decorator';
+import { JwtGuard, RoleGuard } from '../auth/guard';
 import { Role } from '../user/enum/role.enum';
 import { CategoryService } from './../category/category.service';
 import {
   CreateProductDetailsDto,
   CreateProductDto,
   UpdateProductDetailsDto,
-  UpdateProductDto
+  UpdateProductDto,
 } from './dto';
 import { ProductService } from './product.service';
 
@@ -46,6 +48,7 @@ export class ProductController {
   }
 
   @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Post()
   async createProduct(@Body() dto: CreateProductDto) {
     const category = await this.categoryService.findOne(dto.category_id);
@@ -54,30 +57,36 @@ export class ProductController {
   }
 
   @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Post('/details')
   async createProductDetails(@Body() dto: CreateProductDetailsDto) {
     const product = await this.productService.findOne(dto.product_id);
     return this.productService.createDetails(dto, product);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Get(':id')
   getOneProduct(@Param('id') id: string) {
     return this.productService.findOne(id);
   }
 
   @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.updateProduct(id, updateProductDto);
   }
 
   @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productService.deleteProduct(id);
   }
 
   @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Patch(':id/details')
   updateDetails(@Param('id') id: string, @Body() dto: UpdateProductDetailsDto) {
     return this.productService.updateProductDetails(id, dto);

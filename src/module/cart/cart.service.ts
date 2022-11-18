@@ -140,6 +140,8 @@ export class CartService {
 
       return { message: 'Remove cart success!' };
     }
+
+    return null;
   }
 
   // remove cart by id

@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { Cart } from 'src/module/cart/entity/cart.entity';
+import { Order } from 'src/module/order/entity/order.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -36,6 +37,9 @@ export class User {
 
   @OneToMany(() => Cart, (cart) => cart.user, { onDelete: 'SET NULL' })
   carts: Cart[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  order: Order[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
