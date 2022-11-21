@@ -38,8 +38,8 @@ export class User {
   @OneToMany(() => Cart, (cart) => cart.user, { onDelete: 'SET NULL' })
   carts: Cart[];
 
-  @OneToMany(() => Order, (order) => order.user)
-  order: Order[];
+  @OneToMany(() => Order, (order) => order.user, { onDelete: 'SET NULL' })
+  orders: Order[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

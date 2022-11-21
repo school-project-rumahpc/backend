@@ -12,7 +12,7 @@ export class UserService {
 
   findAll() {
     return this.userRepository.find({
-      relations: ['carts', 'carts.item'],
+      relations: ['carts', 'carts.item', 'orders'],
     });
   }
 
@@ -41,7 +41,7 @@ export class UserService {
   async findById(id: string) {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['carts', 'carts.item'],
+      relations: ['carts', 'carts.item', 'orders'],
     });
 
     try {
