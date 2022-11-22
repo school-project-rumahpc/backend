@@ -43,7 +43,7 @@ export class Products {
   category: Category;
   product: Details[];
 
-  @OneToMany(() => Cart, (cart) => cart.item)
+  @OneToMany(() => Cart, (cart) => cart.item, { onDelete: 'SET NULL' })
   carts: Cart[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

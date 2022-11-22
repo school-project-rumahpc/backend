@@ -25,12 +25,12 @@ export class Order {
   items: object[];
 
   @Column({ type: 'enum', enum: Status, default: Status.WAITING })
-  status: Status[];
+  status: Status;
 
   @Column({ name: 'total_price' })
   totalPrice: number;
 
-  @Column({ type: 'timestamptz' })
+  @Column({ nullable: true, type: 'timestamptz' })
   deadline: Date;
 
   @CreateDateColumn({ name: 'order_date', type: 'timestamptz' })
@@ -55,7 +55,7 @@ export class Order {
   @BeforeInsert()
   setDeadline() {
     const d = new Date();
-    const date = d.getDate() + 3;
+    const date = d.getDate() + 1;
     d.setDate(date);
 
     this.deadline = d;

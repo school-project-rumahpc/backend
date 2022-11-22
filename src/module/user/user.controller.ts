@@ -15,6 +15,7 @@ import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { CartService } from '../cart/cart.service';
+import { OrderService } from '../order/order.service';
 import { Role } from './enum/role.enum';
 import { UserService } from './user.service';
 @Controller('user')
@@ -23,6 +24,8 @@ export class UserController {
     private userService: UserService,
     @Inject(forwardRef(() => CartService))
     private cartService: CartService,
+    @Inject(forwardRef(() => OrderService))
+    private orderService: OrderService,
   ) {}
 
   @Roles(Role.ADMIN)
@@ -42,6 +45,12 @@ export class UserController {
   @Get('carts/total')
   getTotalPriceCart(@GetUser() user) {
     return this.cartService.calculateCarts(user.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('orders')
+  getOrders(@GetUser() user) {
+    return this.orderService.getUserOrder(user.id);
   }
 
   @Get(':id')
