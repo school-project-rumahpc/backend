@@ -6,12 +6,14 @@ import { CartService } from '../cart/cart.service';
 import { Cart } from '../cart/entity/cart.entity';
 import { User } from '../user/entity/user.entity';
 import { Order } from './entity/order.entity';
+import { Payment } from './entity/payment.entity';
 import { Status } from './enum/status.enum';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order) private orderRepository: Repository<Order>,
+    @InjectRepository(Payment) private paymentRepository: Repository<Payment>,
     @InjectRepository(Cart) private cartRepository: Repository<Cart>,
     private cartService: CartService,
   ) {}
@@ -25,16 +27,20 @@ export class OrderService {
 
     const orders = await this.orderRepository.find();
 
-    orders.map((order) => {
-      let now = new Date();
-      let deadline = order.deadline;
+    if (!orders.length) return;
 
-      if (deadline.getTime() < now.getTime()) {
-        order.status = Status.FAIL;
-        order.deadline = null;
-        this.orderRepository.softRemove(order);
-      }
-    });
+    orders
+      .filter((order) => order.deadline !== null)
+      .map((order) => {
+        let now = new Date();
+        let deadline = order.deadline;
+
+        if (deadline.getTime() < now.getTime()) {
+          order.status = Status.FAIL;
+          order.deadline = null;
+          this.orderRepository.softRemove(order);
+        }
+      });
   }
 
   getAllOrder() {
@@ -52,6 +58,10 @@ export class OrderService {
       delete order.user;
       return order;
     });
+  }
+
+  async getAllOrderPayment() {
+    return await this.paymentRepository.find({ relations: ['order'] });
   }
 
   async createOrder(user: User) {
@@ -103,13 +113,28 @@ export class OrderService {
     return { message: 'Success!' };
   }
 
-  async getTime() {
-    const orders = await this.getAllOrder();
-
-    return orders.map((order) => {
-      const time = new Date(order.deadline);
-
-      return time.getTime();
+  async uploadFileBuffer(order: Order, fileBuffer: Buffer) {
+    const newPayment = this.paymentRepository.create({
+      order,
+      data: fileBuffer,
     });
+
+    await this.paymentRepository.save(newPayment);
+    return newPayment;
+  }
+
+  async uploadPaymentFile(orderId: string, fileBuffer: Buffer) {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['payment'],
+    });
+    const payment = await this.uploadFileBuffer(order, fileBuffer);
+
+    await this.orderRepository.update(
+      { id: order.id },
+      { payment, deadline: null, status: Status.PENDING },
+    );
+
+    return { message: 'Upload success!' };
   }
 }

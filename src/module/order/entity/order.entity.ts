@@ -7,10 +7,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Status } from '../enum/status.enum';
+import { Payment } from './payment.entity';
 
 @Entity({ name: 'orders' })
 export class Order {
@@ -32,6 +34,10 @@ export class Order {
 
   @Column({ nullable: true, type: 'timestamptz' })
   deadline: Date;
+
+  @OneToOne(() => Payment, (payment) => payment.order, { nullable: true })
+  @JoinColumn({ name: 'payment_id' })
+  payment: Payment;
 
   @CreateDateColumn({ name: 'order_date', type: 'timestamptz' })
   orderDate: Date;

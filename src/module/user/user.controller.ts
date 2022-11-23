@@ -5,12 +5,8 @@ import {
   Get,
   Inject,
   Param,
-  Post,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
@@ -56,17 +52,6 @@ export class UserController {
   @Get(':id')
   getUserById(@Param('id') id: string) {
     return this.userService.findById(id);
-  }
-
-  // @Roles(Role.USER)
-  @UseGuards(RoleGuard)
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadImage(
-    @UploadedFile()
-    file: Express.Multer.File,
-  ) {
-    console.log(file);
   }
 
   @UseGuards(JwtGuard)

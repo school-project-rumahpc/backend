@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { MulterModule } from '@nestjs/platform-express';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseConfig } from './config/database.config';
@@ -19,6 +20,7 @@ import { UserModule } from './module/user/user.module';
       imports: [ConfigModule],
       useClass: DatabaseConfig,
     }),
+    MulterModule.register(),
     ScheduleModule.forRoot(),
     CategoryModule,
     ProductModule,
