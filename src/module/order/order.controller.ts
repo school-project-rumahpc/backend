@@ -4,6 +4,7 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   Res,
   StreamableFile,
   UploadedFile,
@@ -23,11 +24,11 @@ import { OrderService } from './order.service';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtGuard, RoleGuard)
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtGuard, RoleGuard)
   @Get()
-  getAllOrders() {
-    return this.orderService.getAllOrder();
+  getAllOrders(@Query('deleted') deleted: string) {
+    return this.orderService.getAllOrder(deleted);
   }
 
   // @Roles(Role.ADMIN)
@@ -36,12 +37,10 @@ export class OrderController {
   async getOrderPayment(@Res({ passthrough: true }) res: Response) {
     const file = await this.orderService.getAllOrderPayment();
 
-    const stream = Readable.from(file.map((file) => file.data));
+    const stream = Readable.from(file[1].data);
 
     res.set({
-      'Content-Disposition': `inline; filename="${file.map(
-        (file) => file.filename,
-      )}"`,
+      'Content-Disposition': `inline; filename="${file[1].filename}"`,
       'Content-Type': 'image',
     });
 
@@ -60,7 +59,6 @@ export class OrderController {
   @UseInterceptors(FileInterceptor('file'))
   uploadImage(
     @Body('order_id') orderId: string,
-
     @UploadedFile()
     file: Express.Multer.File,
   ) {

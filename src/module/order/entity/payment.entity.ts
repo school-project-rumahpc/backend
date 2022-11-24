@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   BeforeInsert,
   Column,
@@ -17,6 +18,7 @@ export class Payment {
   @Column()
   filename: string;
 
+  @Exclude()
   @Column({ type: 'bytea' })
   data: Uint8Array;
 

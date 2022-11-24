@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
@@ -45,8 +46,8 @@ export class UserController {
 
   @UseGuards(JwtGuard)
   @Get('orders')
-  getOrders(@GetUser() user) {
-    return this.orderService.getUserOrder(user.id);
+  getOrders(@GetUser() user, @Query('deleted') deleted: string) {
+    return this.orderService.getUserOrder(user.id, deleted);
   }
 
   @Get(':id')

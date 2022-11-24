@@ -43,15 +43,15 @@ export class OrderService {
       });
   }
 
-  getAllOrder() {
+  getAllOrder(deleted: string = 'false') {
     return this.orderRepository.find({
-      relations: ['user'],
-      withDeleted: true,
+      relations: ['user', 'payment'],
+      withDeleted: deleted === 'true',
     });
   }
 
-  async getUserOrder(userId: string) {
-    const orders = await this.getAllOrder();
+  async getUserOrder(userId: string, deleted: string) {
+    const orders = await this.getAllOrder(deleted);
 
     return orders.filter((order) => {
       order.user.id === userId;
@@ -74,10 +74,12 @@ export class OrderService {
       items,
     });
 
-    // delete user carts
-    this.cartRepository.remove(items);
+    await this.orderRepository.save(newOrder);
 
-    return await this.orderRepository.save(newOrder);
+    // delete user carts
+    await this.cartRepository.remove(items);
+
+    return newOrder;
   }
 
   async updateStatus(id: string, status: Status) {
