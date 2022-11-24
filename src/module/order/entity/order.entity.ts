@@ -35,7 +35,10 @@ export class Order {
   @Column({ nullable: true, type: 'timestamptz' })
   deadline: Date;
 
-  @OneToOne(() => Payment, (payment) => payment.order, { nullable: true })
+  @OneToOne(() => Payment, (payment) => payment.order, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'payment_id' })
   payment: Payment;
 

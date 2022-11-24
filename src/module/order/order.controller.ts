@@ -5,17 +5,13 @@ import {
   Patch,
   Post,
   Query,
-  Res,
-  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { Roles } from 'src/custom-decorator/roles.decorator';
-import { Readable } from 'stream';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { Role } from '../user/enum/role.enum';
 import { OrderService } from './order.service';
@@ -33,18 +29,9 @@ export class OrderController {
 
   // @Roles(Role.ADMIN)
   // @UseGuards(JwtGuard, RoleGuard)
-  @Get('payment')
-  async getOrderPayment(@Res({ passthrough: true }) res: Response) {
-    const file = await this.orderService.getAllOrderPayment();
-
-    const stream = Readable.from(file[1].data);
-
-    res.set({
-      'Content-Disposition': `inline; filename="${file[1].filename}"`,
-      'Content-Type': 'image',
-    });
-
-    return new StreamableFile(stream);
+  @Get('payments')
+  async getOrderPayment(@Query('deleted') deleted: string) {
+    return await this.orderService.getAllOrderPayment(deleted);
   }
 
   @UseGuards(JwtGuard)

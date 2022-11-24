@@ -45,6 +45,7 @@ export class OrderService {
 
   getAllOrder(deleted: string = 'false') {
     return this.orderRepository.find({
+      select: { payment: { id: true, filename: true, uploadedAt: true } },
       relations: ['user', 'payment'],
       withDeleted: deleted === 'true',
     });
@@ -60,8 +61,18 @@ export class OrderService {
     });
   }
 
-  async getAllOrderPayment() {
-    return await this.paymentRepository.find({ relations: ['order'] });
+  async getAllOrderPayment(deleted: string = 'false') {
+    const orders = await this.orderRepository.find({
+      relations: ['payment'],
+      withDeleted: deleted === 'true',
+    });
+
+    const payments = orders
+      .filter((order) => order.payment !== null)
+      .map((order) =>
+        btoa(String.fromCharCode.apply(null, order.payment.file)),
+      );
+    return payments;
   }
 
   async createOrder(user: User) {
@@ -118,7 +129,7 @@ export class OrderService {
   async uploadFileBuffer(order: Order, fileBuffer: Buffer) {
     const newPayment = this.paymentRepository.create({
       order,
-      data: fileBuffer,
+      file: fileBuffer,
     });
 
     await this.paymentRepository.save(newPayment);
