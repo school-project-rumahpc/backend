@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   BeforeInsert,
   Column,
@@ -45,9 +46,11 @@ export class Details {
   @JoinColumn({ name: 'product_id' })
   product: Products;
 
+  @Exclude()
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 
