@@ -64,8 +64,6 @@ export class ProductController {
     return this.productService.createDetails(dto, product);
   }
 
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtGuard, RoleGuard)
   @Get(':id')
   getOneProduct(@Param('id') id: string) {
     return this.productService.findOne(id);

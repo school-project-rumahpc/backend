@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
@@ -46,7 +49,14 @@ export class OrderController {
   @UseInterceptors(FileInterceptor('file'))
   uploadImage(
     @Body('order_id') orderId: string,
-    @UploadedFile()
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000 }),
+          new FileTypeValidator({ fileType: /\.(jpg|jpeg|png)$/ }),
+        ],
+      }),
+    )
     file: Express.Multer.File,
   ) {
     return this.orderService.uploadPaymentFile(orderId, file.buffer);
