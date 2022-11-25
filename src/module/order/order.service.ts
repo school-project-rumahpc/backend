@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -43,12 +43,19 @@ export class OrderService {
       });
   }
 
-  getAllOrder(deleted: string = 'false') {
-    return this.orderRepository.find({
-      select: { payment: { id: true, filename: true, uploadedAt: true } },
+  async getAllOrder(deleted: string = 'false', payment: string = 'true') {
+    const orders = await this.orderRepository.find({
       relations: ['user', 'payment'],
       withDeleted: deleted === 'true',
     });
+
+    if (payment === 'false') {
+      return orders.map((order) => {
+        delete order.payment;
+        return order;
+      });
+    }
+    return orders;
   }
 
   async getUserOrder(userId: string, deleted: string) {
@@ -90,10 +97,16 @@ export class OrderService {
     // delete user carts
     await this.cartRepository.remove(items);
 
+    delete newOrder.user;
+
     return newOrder;
   }
 
   async updateStatus(id: string, status: Status) {
+    const order = await this.orderRepository.findOneBy({ id });
+
+    if (!order) throw new NotFoundException('Order Not Found');
+
     await this.orderRepository.update(
       { id },
       { status: status, deadline: null },
@@ -104,12 +117,6 @@ export class OrderService {
     };
   }
 
-  async deleteOrder(id: string) {
-    await this.orderRepository.softDelete(id);
-
-    return { message: 'Delete success!' };
-  }
-
   async acceptOrder(id: string) {
     // update user order
     await this.updateStatus(id, Status.ONQUEUE);
@@ -117,11 +124,33 @@ export class OrderService {
     return { message: 'Success!' };
   }
 
+  async finishOrder(id: string) {
+    await this.updateStatus(id, Status.FINISHED);
+
+    return { message: `Order with id: ${id} has finished` };
+  }
+
+  async cancelOrder(userId: string, id: string) {
+    const order = await this.orderRepository.findOneBy({
+      id,
+      user: { id: userId },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    // set order's status to fail
+    await this.updateStatus(id, Status.FAIL);
+    // soft delete order
+    await this.orderRepository.softDelete(id);
+
+    return { message: 'Order cancelled' };
+  }
+
   async rejectOrder(id: string) {
     await this.updateStatus(id, Status.FAIL);
 
     // soft delete user order
-    this.deleteOrder(id);
+    await this.orderRepository.softDelete(id);
 
     return { message: 'Success!' };
   }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   FileTypeValidator,
   Get,
   MaxFileSizeValidator,
@@ -26,8 +27,11 @@ export class OrderController {
   // @Roles(Role.ADMIN)
   // @UseGuards(JwtGuard, RoleGuard)
   @Get()
-  getAllOrders(@Query('deleted') deleted: string) {
-    return this.orderService.getAllOrder(deleted);
+  getAllOrders(
+    @Query('deleted') deleted: string,
+    @Query('payment') payment: string,
+  ) {
+    return this.orderService.getAllOrder(deleted, payment);
   }
 
   // @Roles(Role.ADMIN)
@@ -74,5 +78,11 @@ export class OrderController {
   @Patch('reject')
   rejectOrder(@Body('order_id') orderId: string) {
     return this.orderService.rejectOrder(orderId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete('cancel')
+  cancelOrder(@GetUser() user, @Body('order_id') orderId: string) {
+    return this.orderService.cancelOrder(user.id, orderId);
   }
 }

@@ -12,7 +12,7 @@ export class UserService {
 
   findAll() {
     return this.userRepository.find({
-      relations: ['carts', 'carts.item', 'orders', 'orders.payment'],
+      relations: ['carts', 'carts.item', 'orders'],
     });
   }
 
