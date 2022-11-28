@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   forwardRef,
   Get,
   Inject,
   Param,
+  Patch,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +15,7 @@ import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { CartService } from '../cart/cart.service';
 import { OrderService } from '../order/order.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from './enum/role.enum';
 import { UserService } from './user.service';
 @Controller('user')
@@ -53,6 +56,12 @@ export class UserController {
   @Get(':id')
   getUserById(@Param('id') id: string) {
     return this.userService.findById(id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('update')
+  updateUser(@GetUser() user, @Body() dto: UpdateUserDto) {
+    return this.userService.updateUser(user.id, dto);
   }
 
   @UseGuards(JwtGuard)

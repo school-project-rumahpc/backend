@@ -13,6 +13,7 @@ import { Products } from './product.entity';
 
 @Entity({ name: 'product_details', orderBy: { id: 'ASC' } })
 export class Details {
+  @Exclude()
   @PrimaryColumn()
   id: string;
 
