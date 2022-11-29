@@ -78,15 +78,15 @@ export class ProductController {
 
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.deleteProduct(id);
+  @Patch(':id/details')
+  updateDetails(@Param('id') id: string, @Body() dto: UpdateProductDetailsDto) {
+    return this.productService.updateProductDetails(id, dto);
   }
 
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
-  @Patch(':id/details')
-  updateDetails(@Param('id') id: string, @Body() dto: UpdateProductDetailsDto) {
-    return this.productService.updateProductDetails(id, dto);
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.productService.deleteProduct(id);
   }
 }

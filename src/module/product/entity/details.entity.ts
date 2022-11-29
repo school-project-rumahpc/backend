@@ -20,7 +20,7 @@ export class Details {
   @Column()
   processor: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   motherboard: string;
 
   @Column()
@@ -29,16 +29,16 @@ export class Details {
   @Column()
   storage: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   graphics: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   psu: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   display: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   casing: string;
 
   @OneToOne(() => Products, (product) => product.details, {
