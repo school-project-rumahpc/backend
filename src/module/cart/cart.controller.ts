@@ -12,6 +12,7 @@ import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { Role } from '../user/enum/role.enum';
 import { CartService } from './cart.service';
+import { CartDto } from './dto/cart.dto';
 
 @Controller('cart')
 export class CartController {
@@ -24,19 +25,22 @@ export class CartController {
     return this.cartService.getAllCarts();
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Post('add')
-  addProductToCart(@GetUser() user, @Body('product_id') productId: string) {
-    return this.cartService.addToCart(productId, user.id);
+  addProductToCart(@GetUser() user, @Body() { product_id }: CartDto) {
+    return this.cartService.addToCart(product_id, user.id);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Delete('remove')
   removeCart(@GetUser() user, @Body('product_id') productId: string) {
     return this.cartService.removeCart(productId, user.id);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Delete('delete')
   removeCartById(
     @GetUser() user,

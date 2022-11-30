@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../user/entity/user.entity';
 import { UserService } from '../user/user.service';
 import { CreateUserDto } from './../user/dto/create-user.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
     if (userInDb) throw new BadRequestException(`User has already exists!`);
 
     // Creating User
-    const user = await this.userService.create(dto);
+    await this.userService.create(dto);
 
     return {
       message: 'Register success!',
@@ -58,7 +59,8 @@ export class AuthService {
     });
   }
 
-  async login(emailOrUsername: string, password: string) {
+  async login(dto: LoginDto) {
+    const { emailOrUsername, password } = dto;
     // Check user in database
     const user = await this.userService.findUser(emailOrUsername);
 

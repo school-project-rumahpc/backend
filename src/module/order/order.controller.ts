@@ -24,8 +24,8 @@ import { OrderService } from './order.service';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtGuard, RoleGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Get()
   getAllOrders(
     @Query('deleted') deleted: string,
@@ -34,21 +34,22 @@ export class OrderController {
     return this.orderService.getAllOrder(deleted, payment);
   }
 
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtGuard, RoleGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
   @Get('payments')
   async getOrderPayment(@Query('deleted') deleted: string) {
     return await this.orderService.getAllOrderPayment(deleted);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Post()
   createOrder(@GetUser() user) {
     return this.orderService.createOrder(user);
   }
 
-  // @Roles(Role.USER)
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadImage(
@@ -80,7 +81,8 @@ export class OrderController {
     return this.orderService.rejectOrder(orderId);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Delete('cancel')
   cancelOrder(@GetUser() user, @Body('order_id') orderId: string) {
     return this.orderService.cancelOrder(user.id, orderId);
