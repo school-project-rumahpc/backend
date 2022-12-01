@@ -35,19 +35,22 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Get('carts')
   getUserCart(@GetUser() user) {
     return this.cartService.getUserCart(user.id);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Get('carts/total')
   getTotalPriceCart(@GetUser() user) {
     return this.cartService.calculateCarts(user.id);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Get('orders')
   getOrders(@GetUser() user, @Query('deleted') deleted: string) {
     return this.orderService.getUserOrder(user.id, deleted);
@@ -58,13 +61,15 @@ export class UserController {
     return this.userService.findById(id);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Patch('update')
   updateUser(@GetUser() user, @Body() dto: UpdateUserDto) {
     return this.userService.updateUser(user.id, dto);
   }
 
-  @UseGuards(JwtGuard)
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
   @Delete('carts')
   clearCarts(@GetUser() user) {
     return this.cartService.clearCarts(user.id);

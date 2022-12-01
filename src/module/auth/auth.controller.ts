@@ -10,6 +10,7 @@ import {
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { CreateUserDto } from './../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/Login.dto';
 import { JwtGuard } from './guard';
 @Controller('auth')
 export class AuthController {
@@ -28,11 +29,8 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(
-    @Body('emailOrUsername') emailOrUsername: string,
-    @Body('password') password: string,
-  ) {
-    const token = await this.authService.login(emailOrUsername, password);
+  async login(@Body() dto: LoginDto) {
+    const token = await this.authService.login(dto);
 
     // save token in cookie
     // res.cookie('jwt', token);
