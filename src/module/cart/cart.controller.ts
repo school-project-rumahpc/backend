@@ -28,15 +28,15 @@ export class CartController {
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
   @Post('add')
-  addProductToCart(@GetUser() user, @Body() { product_id }: CartDto) {
-    return this.cartService.addToCart(product_id, user.id);
+  addProductToCart(@GetUser() user, @Body() dto: CartDto) {
+    return this.cartService.addToCart(dto.product_id, user.id);
   }
 
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
   @Delete('remove')
-  removeCart(@GetUser() user, @Body('product_id') productId: string) {
-    return this.cartService.removeCart(productId, user.id);
+  removeCart(@GetUser() user, @Body() dto: CartDto) {
+    return this.cartService.removeCart(dto.product_id, user.id);
   }
 
   @Roles(Role.USER)

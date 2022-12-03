@@ -30,8 +30,6 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtGuard, RoleGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.categoryService.findOne(id);

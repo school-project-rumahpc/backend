@@ -21,6 +21,4 @@ export class UpdateProductDetailsDto extends PartialType(
   psu: string;
 
   casing: string;
-
-  product_id: string;
 }

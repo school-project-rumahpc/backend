@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   forwardRef,
   Get,
   Inject,
   Param,
+  Patch,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +15,7 @@ import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { CartService } from '../cart/cart.service';
 import { OrderService } from '../order/order.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from './enum/role.enum';
 import { UserService } from './user.service';
 @Controller('user')
@@ -60,6 +63,16 @@ export class UserController {
 
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
+<<<<<<< HEAD
+=======
+  @Patch('update')
+  updateUser(@GetUser() user, @Body() dto: UpdateUserDto) {
+    return this.userService.updateUser(user.id, dto);
+  }
+
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
+>>>>>>> e640825fe71eef8c75100d5ac2f93a3f0c65e580
   @Delete('carts')
   clearCarts(@GetUser() user) {
     return this.cartService.clearCarts(user.id);

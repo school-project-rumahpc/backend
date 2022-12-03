@@ -116,16 +116,32 @@ export class ProductService {
     return await this.productRepository.save(product);
   }
 
-  async updateProductDetails(id: string, dto: UpdateProductDetailsDto) {
-    const details = await this.detailsRepository.findOne({
-      where: { id },
-      relations: ['product'],
+  async updateProductDetails(
+    id: string,
+    {
+      processor,
+      motherboard,
+      memory,
+      storage,
+      graphics,
+      psu,
+      casing,
+      display,
+    }: UpdateProductDetailsDto,
+  ) {
+    await this.detailsRepository.update(id, {
+      processor,
+      motherboard,
+      memory,
+      storage,
+      graphics,
+      psu,
+      casing,
+      display,
     });
-    const product = await this.findOne(dto.product_id);
-
-    details.product = product;
-
-    return await this.detailsRepository.save(details);
+    return {
+      message: 'Update success',
+    };
   }
 
   async deleteProduct(id: string) {

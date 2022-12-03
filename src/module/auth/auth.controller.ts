@@ -10,7 +10,7 @@ import {
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { CreateUserDto } from './../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto } from './dto/Login.dto';
 import { JwtGuard } from './guard';
 @Controller('auth')
 export class AuthController {
