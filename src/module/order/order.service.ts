@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CartService } from '../cart/cart.service';
 import { Cart } from '../cart/entity/cart.entity';
+import { Products } from '../product/entity';
 import { User } from '../user/entity/user.entity';
 import { Order } from './entity/order.entity';
 import { Payment } from './entity/payment.entity';
@@ -15,6 +16,7 @@ export class OrderService {
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(Payment) private paymentRepository: Repository<Payment>,
     @InjectRepository(Cart) private cartRepository: Repository<Cart>,
+    @InjectRepository(Products) private productRepository: Repository<Products>,
     private cartService: CartService,
   ) {}
 
@@ -32,8 +34,8 @@ export class OrderService {
     orders
       .filter((order) => order.deadline !== null)
       .map((order) => {
-        let now = new Date();
-        let deadline = order.deadline;
+        const now = new Date();
+        const deadline = order.deadline;
 
         if (deadline.getTime() < now.getTime()) {
           order.status = Status.FAIL;
@@ -94,6 +96,12 @@ export class OrderService {
 
     await this.orderRepository.save(newOrder);
 
+    // update new product stock
+    items.map(({ item }) => {
+      const newStock = (item.stock -= 1);
+      this.productRepository.update(item.id, { stock: newStock });
+    });
+
     // delete user carts
     await this.cartRepository.remove(items);
 
@@ -137,6 +145,10 @@ export class OrderService {
     });
 
     if (!order) throw new NotFoundException('Order not found');
+
+    // // restore product stock
+    // const items = order.items
+    // items.map((item) => item.)
 
     // set order's status to fail
     await this.updateStatus(id, Status.FAIL);
