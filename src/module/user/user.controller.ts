@@ -63,8 +63,6 @@ export class UserController {
 
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
-<<<<<<< HEAD
-=======
   @Patch('update')
   updateUser(@GetUser() user, @Body() dto: UpdateUserDto) {
     return this.userService.updateUser(user.id, dto);
@@ -72,7 +70,6 @@ export class UserController {
 
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
->>>>>>> e640825fe71eef8c75100d5ac2f93a3f0c65e580
   @Delete('carts')
   clearCarts(@GetUser() user) {
     return this.cartService.clearCarts(user.id);
