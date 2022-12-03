@@ -5,6 +5,7 @@ import {
   FileTypeValidator,
   Get,
   MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
   Patch,
   Post,
@@ -32,6 +33,11 @@ export class OrderController {
     @Query('payment') payment: string,
   ) {
     return this.orderService.getAllOrder(deleted, payment);
+  }
+
+  @Get(':id')
+  getOneOrder(@Param('id') id: string) {
+    return this.orderService.getOrderById(id);
   }
 
   @Roles(Role.ADMIN)

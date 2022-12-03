@@ -84,6 +84,17 @@ export class OrderService {
     return payments;
   }
 
+  async getOrderById(id: string) {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['payment'],
+      withDeleted: true,
+    });
+
+    if (!order) throw new NotFoundException('Order Not Found!');
+    return order;
+  }
+
   async createOrder(user: User) {
     const items = user.carts;
     const totalPrice = await this.cartService.calculateCarts(user.id);
