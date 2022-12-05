@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -72,14 +67,14 @@ export class OrderService {
     return orders;
   }
 
-  async getUserOrder(userId: string, deleted: string) {
-    const orders = await this.getAllOrder(deleted);
-
-    return orders.filter((order) => {
-      order.user.id === userId;
-      delete order.user;
-      return order;
+  async getUserOrder(userId: string, deleted: string = 'false') {
+    const orders = await this.orderRepository.find({
+      where: { user: { id: userId } },
+      relations: ['payment'],
+      withDeleted: deleted === 'true',
     });
+
+    return orders;
   }
 
   async getAllOrderPayment(deleted: string = 'false') {
@@ -96,17 +91,15 @@ export class OrderService {
     return payments;
   }
 
-  async getOrderById(id: string, user: User) {
+  async getOrderById(id: string, userId: string) {
     const order = await this.orderRepository.findOne({
-      where: { id },
+      where: { id, user: { id: userId } },
       relations: ['payment'],
       withDeleted: true,
     });
 
     if (!order) throw new NotFoundException('Order Not Found!');
 
-    if (order.user !== user)
-      throw new ForbiddenException('Cant get Order, invalid User!');
     return order;
   }
 

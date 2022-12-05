@@ -38,7 +38,7 @@ export class OrderController {
   @UseGuards(JwtGuard)
   @Get(':id')
   getOneOrder(@Param('id') id: string, @GetUser() user) {
-    return this.orderService.getOrderById(id, user);
+    return this.orderService.getOrderById(id, user.id);
   }
 
   @Roles(Role.ADMIN)

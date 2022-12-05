@@ -48,14 +48,11 @@ export class CartService {
   // load user carts
   async getUserCart(userId: string) {
     const carts = await this.cartRepository.find({
+      where: { user: { id: userId } },
       relations: ['item', 'user'],
       order: { createdAt: 'DESC' },
     });
-    return carts.filter((cart) => {
-      cart.user.id === userId;
-      delete cart.user;
-      return cart;
-    });
+    return carts;
   }
 
   // Add to cart
