@@ -1,3 +1,4 @@
+import { Cart } from 'src/module/cart/entity/cart.entity';
 import { User } from 'src/module/user/entity/user.entity';
 import {
   BeforeInsert,
@@ -24,7 +25,7 @@ export class Order {
   user: User;
 
   @Column('jsonb')
-  items: object[];
+  items: Cart[];
 
   @Column({ type: 'enum', enum: Status, default: Status.WAITING })
   status: Status;

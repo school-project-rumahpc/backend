@@ -35,9 +35,10 @@ export class OrderController {
     return this.orderService.getAllOrder(deleted, payment);
   }
 
+  @UseGuards(JwtGuard)
   @Get(':id')
-  getOneOrder(@Param('id') id: string) {
-    return this.orderService.getOrderById(id);
+  getOneOrder(@Param('id') id: string, @GetUser() user) {
+    return this.orderService.getOrderById(id, user);
   }
 
   @Roles(Role.ADMIN)

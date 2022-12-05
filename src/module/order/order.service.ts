@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -38,6 +43,13 @@ export class OrderService {
         const deadline = order.deadline;
 
         if (deadline.getTime() < now.getTime()) {
+          // restore product stock
+          const items = order.items;
+          items.map(({ quantity, item }) => {
+            const stock = item.stock + quantity;
+            this.productRepository.update(item.id, { stock });
+          });
+
           order.status = Status.FAIL;
           order.deadline = null;
           this.orderRepository.softRemove(order);
@@ -84,7 +96,7 @@ export class OrderService {
     return payments;
   }
 
-  async getOrderById(id: string) {
+  async getOrderById(id: string, user: User) {
     const order = await this.orderRepository.findOne({
       where: { id },
       relations: ['payment'],
@@ -92,6 +104,9 @@ export class OrderService {
     });
 
     if (!order) throw new NotFoundException('Order Not Found!');
+
+    if (order.user !== user)
+      throw new ForbiddenException('Cant get Order, invalid User!');
     return order;
   }
 
@@ -108,8 +123,8 @@ export class OrderService {
     await this.orderRepository.save(newOrder);
 
     // update new product stock
-    items.map(({ item }) => {
-      const newStock = (item.stock -= 1);
+    items.map(({ quantity, item }) => {
+      const newStock = item.stock - quantity;
       this.productRepository.update(item.id, { stock: newStock });
     });
 
@@ -157,9 +172,12 @@ export class OrderService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    // // restore product stock
-    // const items = order.items
-    // items.map((item) => item.)
+    // restore product stock
+    const items = order.items;
+    items.map(({ quantity, item }) => {
+      const stock = item.stock + quantity;
+      this.productRepository.update(item.id, { stock });
+    });
 
     // set order's status to fail
     await this.updateStatus(id, Status.FAIL);
@@ -170,7 +188,15 @@ export class OrderService {
   }
 
   async rejectOrder(id: string) {
+    const order = await this.orderRepository.findOneBy({ id });
     await this.updateStatus(id, Status.FAIL);
+
+    // restore product stock
+    const items = order.items;
+    items.map(({ quantity, item }) => {
+      const stock = item.stock + quantity;
+      this.productRepository.update(item.id, { stock });
+    });
 
     // soft delete user order
     await this.orderRepository.softDelete(id);
