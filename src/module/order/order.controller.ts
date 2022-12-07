@@ -35,17 +35,17 @@ export class OrderController {
     return this.orderService.getAllOrder(deleted, payment);
   }
 
-  @UseGuards(JwtGuard)
-  @Get(':id')
-  getOneOrder(@Param('id') id: string, @GetUser() user) {
-    return this.orderService.getOrderById(id, user.id);
-  }
-
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   @Get('payments')
   async getOrderPayment(@Query('deleted') deleted: string) {
     return await this.orderService.getAllOrderPayment(deleted);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':id')
+  getOneOrder(@Param('id') id: string, @GetUser() user) {
+    return this.orderService.getOrderById(id, user.id);
   }
 
   @Roles(Role.USER)

@@ -4,7 +4,6 @@ import { Cart } from 'src/module/cart/entity/cart.entity';
 import { Order } from 'src/module/order/entity/order.entity';
 import {
   BeforeInsert,
-  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -48,7 +47,6 @@ export class User {
   updatedAt: Date;
 
   @BeforeInsert()
-  @BeforeUpdate()
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 10);
   }

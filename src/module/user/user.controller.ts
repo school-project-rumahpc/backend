@@ -15,7 +15,7 @@ import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { CartService } from '../cart/cart.service';
 import { OrderService } from '../order/order.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto';
 import { Role } from './enum/role.enum';
 import { UserService } from './user.service';
 @Controller('user')
@@ -59,6 +59,13 @@ export class UserController {
   @Get(':id')
   getUserById(@Param('id') id: string) {
     return this.userService.findById(id);
+  }
+
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
+  @Patch('password')
+  updateUserPassword(@GetUser() user, @Body() dto: UpdateUserDto) {
+    return this.userService.updateUserPassword(user.id, dto);
   }
 
   @Roles(Role.USER)

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -80,5 +81,24 @@ export class UserService {
     await this.userRepository.save(user);
 
     return { message: 'Update success' };
+  }
+
+  async updateUserPassword(userId: string, { password }: UpdateUserDto) {
+    const user = await this.findById(userId);
+
+    const isPasswordSame = bcrypt.compareSync(password, user.password);
+
+    if (isPasswordSame) {
+      throw new BadRequestException('Please insert a different password');
+    }
+
+    // hashing password
+    await this.userRepository.update(userId, {
+      password: bcrypt.hashSync(password, 10),
+    });
+
+    return {
+      message: 'Update password success!',
+    };
   }
 }
