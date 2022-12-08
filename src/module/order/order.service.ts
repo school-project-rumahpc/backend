@@ -52,29 +52,38 @@ export class OrderService {
       });
   }
 
-  async getAllOrder(deleted: string = 'false', payment: string = 'true') {
-    const orders = await this.orderRepository.find({
-      relations: ['user', 'payment'],
-      withDeleted: deleted === 'true',
-    });
-
+  getPayments(payment: string, orders: Order[]) {
     if (payment === 'false') {
       return orders.map((order) => {
         delete order.payment;
         return order;
       });
     }
+
     return orders;
   }
 
-  async getUserOrder(userId: string, deleted: string = 'false') {
+  async getAllOrder(deleted: string = 'false', payment: string = 'true') {
+    const orders = await this.orderRepository.find({
+      relations: ['user', 'payment'],
+      withDeleted: deleted === 'true',
+    });
+
+    return this.getPayments(payment, orders);
+  }
+
+  async getUserOrder(
+    userId: string,
+    deleted: string = 'false',
+    payment: string = 'false',
+  ) {
     const orders = await this.orderRepository.find({
       where: { user: { id: userId } },
       relations: ['payment'],
       withDeleted: deleted === 'true',
     });
 
-    return orders;
+    return this.getPayments(payment, orders);
   }
 
   async getAllOrderPayment(deleted: string = 'false') {
