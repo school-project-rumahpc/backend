@@ -45,9 +45,10 @@ export class OrderService {
             this.productRepository.update(item.id, { stock });
           });
 
-          order.status = Status.FAIL;
-          order.deadline = null;
-          this.orderRepository.softRemove(order);
+          // set status and deadline
+          this.updateStatus(order.id, Status.FAIL);
+          // soft remove
+          this.orderRepository.softDelete(order.id);
         }
       });
   }
