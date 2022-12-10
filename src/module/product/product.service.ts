@@ -83,7 +83,7 @@ export class ProductService {
     category.products = [...category.products, newProduct];
     await this.categoryRepository.save(category);
 
-    return newProduct;
+    return { message: 'Create product success!' };
   }
 
   async createDetails(dto: CreateProductDetailsDto, product: Products) {
@@ -94,7 +94,7 @@ export class ProductService {
     product.details = details;
     await this.productRepository.save(product);
 
-    return details;
+    return { message: 'Create product details success!' };
   }
 
   async updateProduct(
@@ -113,7 +113,10 @@ export class ProductService {
     product.images = images;
     product.category = category;
 
-    return await this.productRepository.save(product);
+    await this.productRepository.save(product);
+    return {
+      message: 'Update success',
+    };
   }
 
   async updateProductDetails(
@@ -147,6 +150,6 @@ export class ProductService {
   async deleteProduct(id: string) {
     const product = await this.findOne(id);
     await this.productRepository.remove(product);
-    return `Product with id: ${id} has deleted`;
+    return { message: `Product with id: ${id} has deleted` };
   }
 }

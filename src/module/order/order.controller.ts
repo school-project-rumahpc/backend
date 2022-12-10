@@ -15,6 +15,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path';
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
@@ -28,18 +30,8 @@ export class OrderController {
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   @Get()
-  getAllOrders(
-    @Query('deleted') deleted: string,
-    @Query('payment') payment: string,
-  ) {
-    return this.orderService.getAllOrder(deleted, payment);
-  }
-
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtGuard, RoleGuard)
-  @Get('payments')
-  async getOrderPayment(@Query('deleted') deleted: string) {
-    return await this.orderService.getAllOrderPayment(deleted);
+  getAllOrders(@Query('deleted') deleted: string) {
+    return this.orderService.getAllOrder(deleted);
   }
 
   @UseGuards(JwtGuard)
@@ -58,7 +50,18 @@ export class OrderController {
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const ext = path.extname(file.originalname);
+          const newFileName = `${req.body.order_id}${ext}`;
+          cb(null, newFileName);
+        },
+      }),
+    }),
+  )
   uploadImage(
     @Body('order_id') orderId: string,
     @UploadedFile(
@@ -71,7 +74,7 @@ export class OrderController {
     )
     file: Express.Multer.File,
   ) {
-    return this.orderService.uploadPaymentFile(orderId, file.buffer);
+    return this.orderService.uploadOrderImage(orderId, file.path);
   }
 
   @Roles(Role.ADMIN)

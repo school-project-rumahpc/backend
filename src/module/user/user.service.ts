@@ -43,7 +43,7 @@ export class UserService {
   async findById(id: string) {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['carts', 'carts.item', 'orders', 'orders.payment'],
+      relations: ['carts', 'carts.item', 'orders'],
     });
 
     try {
@@ -68,7 +68,11 @@ export class UserService {
   async create(dto: CreateUserDto) {
     const user = this.userRepository.create(dto);
 
-    return await this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    return {
+      message: 'Create user success!',
+    };
   }
 
   async updateUser(id: string, { username, email, phone }: UpdateUserDto) {

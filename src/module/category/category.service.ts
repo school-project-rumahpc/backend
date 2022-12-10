@@ -14,7 +14,10 @@ export class CategoryService {
   async create(createCategoryDto: CreateCategoryDto) {
     const newCategory = this.categoryRepository.create(createCategoryDto);
 
-    return await this.categoryRepository.save(newCategory);
+    await this.categoryRepository.save(newCategory);
+    return {
+      message: 'Create category success!',
+    };
   }
 
   findAll() {
@@ -44,12 +47,18 @@ export class CategoryService {
     const category = await this.findOne(id);
     category.category_name = updateCategoryDto.category_name;
 
-    return await this.categoryRepository.save(category);
+    await this.categoryRepository.save(category);
+    return {
+      message: 'Update category success!',
+    };
   }
 
   async remove(id: string) {
     const category = await this.findOne(id);
 
-    return await this.categoryRepository.remove(category);
+    await this.categoryRepository.remove(category);
+    return {
+      message: `Category with id ${id} successfully deleted!`,
+    };
   }
 }

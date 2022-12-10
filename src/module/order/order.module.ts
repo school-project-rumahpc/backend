@@ -6,14 +6,13 @@ import { Products } from '../product/entity';
 import { User } from '../user/entity/user.entity';
 import { UserModule } from '../user/user.module';
 import { Order } from './entity/order.entity';
-import { Payment } from './entity/payment.entity';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
-    TypeOrmModule.forFeature([Cart, Order, User, Payment, Products]),
+    TypeOrmModule.forFeature([Cart, Order, User, Products]),
     CartModule,
   ],
   controllers: [OrderController],

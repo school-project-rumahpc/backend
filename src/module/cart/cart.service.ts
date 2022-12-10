@@ -77,7 +77,10 @@ export class CartService {
           subTotal: product.price,
         });
 
-        return await this.cartRepository.save(newItem);
+        await this.cartRepository.save(newItem);
+        return {
+          message: 'Add product to cart success!',
+        };
       } else {
         const stock = cart[0].item.stock;
         // Update item quantity
@@ -94,7 +97,9 @@ export class CartService {
           subTotal,
         });
 
-        return cart[0];
+        return {
+          message: 'Add product to cart success!',
+        };
       }
     }
 

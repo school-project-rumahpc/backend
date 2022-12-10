@@ -7,14 +7,12 @@ import { Cart } from '../cart/entity/cart.entity';
 import { Products } from '../product/entity';
 import { User } from '../user/entity/user.entity';
 import { Order } from './entity/order.entity';
-import { Payment } from './entity/payment.entity';
 import { Status } from './enum/status.enum';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order) private orderRepository: Repository<Order>,
-    @InjectRepository(Payment) private paymentRepository: Repository<Payment>,
     @InjectRepository(Cart) private cartRepository: Repository<Cart>,
     @InjectRepository(Products) private productRepository: Repository<Products>,
     private cartService: CartService,
@@ -53,58 +51,27 @@ export class OrderService {
       });
   }
 
-  getPayments(payment: string, orders: Order[]) {
-    if (payment === 'false') {
-      return orders.map((order) => {
-        delete order.payment;
-        return order;
-      });
-    }
+  async getAllOrder(deleted: string = 'false') {
+    const orders = await this.orderRepository.find({
+      relations: ['user'],
+      withDeleted: deleted === 'true',
+    });
 
     return orders;
   }
 
-  async getAllOrder(deleted: string = 'false', payment: string = 'true') {
-    const orders = await this.orderRepository.find({
-      relations: ['user', 'payment'],
-      withDeleted: deleted === 'true',
-    });
-
-    return this.getPayments(payment, orders);
-  }
-
-  async getUserOrder(
-    userId: string,
-    deleted: string = 'false',
-    payment: string = 'false',
-  ) {
+  async getUserOrder(userId: string, deleted: string = 'false') {
     const orders = await this.orderRepository.find({
       where: { user: { id: userId } },
-      relations: ['payment'],
       withDeleted: deleted === 'true',
     });
 
-    return this.getPayments(payment, orders);
-  }
-
-  async getAllOrderPayment(deleted: string = 'false') {
-    const orders = await this.orderRepository.find({
-      relations: ['payment'],
-      withDeleted: deleted === 'true',
-    });
-
-    const payments = orders
-      .filter((order) => order.payment !== null)
-      .map((order) =>
-        btoa(String.fromCharCode.apply(null, order.payment.file)),
-      );
-    return payments;
+    return orders;
   }
 
   async getOrderById(id: string, userId: string) {
     const order = await this.orderRepository.findOne({
       where: { id, user: { id: userId } },
-      relations: ['payment'],
       withDeleted: true,
     });
 
@@ -136,7 +103,9 @@ export class OrderService {
 
     delete newOrder.user;
 
-    return newOrder;
+    return {
+      message: 'Create Order success!',
+    };
   }
 
   async updateStatus(id: string, status: Status) {
@@ -207,27 +176,10 @@ export class OrderService {
     return { message: 'Success!' };
   }
 
-  async uploadFileBuffer(order: Order, fileBuffer: Buffer) {
-    const newPayment = this.paymentRepository.create({
-      order,
-      file: fileBuffer,
-    });
+  async uploadOrderImage(orderId: string, filePath: string) {
+    await this.orderRepository.update(orderId, { image: filePath });
 
-    await this.paymentRepository.save(newPayment);
-    return newPayment;
-  }
-
-  async uploadPaymentFile(orderId: string, fileBuffer: Buffer) {
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId },
-      relations: ['payment'],
-    });
-    const payment = await this.uploadFileBuffer(order, fileBuffer);
-
-    await this.orderRepository.update(
-      { id: order.id },
-      { payment, deadline: null, status: Status.PENDING },
-    );
+    await this.updateStatus(orderId, Status.PENDING);
 
     return { message: 'Upload success!' };
   }

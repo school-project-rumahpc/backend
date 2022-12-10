@@ -8,7 +8,7 @@ import {
   Param,
   Patch,
   Query,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { Roles } from 'src/custom-decorator/roles.decorator';
@@ -52,8 +52,8 @@ export class UserController {
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
   @Get('orders')
-  getOrders(@GetUser() user, @Query('deleted') deleted: string, @Query('payment') payment: string) {
-    return this.orderService.getUserOrder(user.id, deleted, payment);
+  getOrders(@GetUser() user, @Query('deleted') deleted: string) {
+    return this.orderService.getUserOrder(user.id, deleted);
   }
 
   @Get(':id')

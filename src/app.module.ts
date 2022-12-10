@@ -3,7 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { MulterModule } from '@nestjs/platform-express';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 import { DatabaseConfig } from './config/database.config';
 import { Config } from './config/main.config';
 import { AuthModule } from './module/auth/auth.module';
@@ -19,6 +21,10 @@ import { UserModule } from './module/user/user.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useClass: DatabaseConfig,
+    }),
+    ServeStaticModule.forRoot({
+      serveRoot: '/api/uploads',
+      rootPath: join(__dirname, '..', 'uploads'),
     }),
     MulterModule.register(),
     ScheduleModule.forRoot(),
