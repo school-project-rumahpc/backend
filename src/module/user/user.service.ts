@@ -12,9 +12,10 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  findAll() {
+  findAll(deleted: string = 'false') {
     return this.userRepository.find({
       relations: ['carts', 'carts.item', 'orders'],
+      withDeleted: deleted === 'true',
     });
   }
 
@@ -44,6 +45,7 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { id },
       relations: ['carts', 'carts.item', 'orders'],
+      withDeleted: true,
     });
 
     try {
@@ -104,5 +106,18 @@ export class UserService {
     return {
       message: 'Update password success!',
     };
+  }
+
+  async deleteUser(id: string, { password }: UpdateUserDto) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    // compare password
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
+
+    if (!isPasswordValid) throw new BadRequestException('Invalid Password!');
+
+    await this.userRepository.softDelete(id);
+
+    return { message: 'Delete user success!' };
   }
 }

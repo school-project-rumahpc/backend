@@ -31,8 +31,8 @@ export class UserController {
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   @Get()
-  getAllUser() {
-    return this.userService.findAll();
+  getAllUser(@Query('deleted') deleted: string) {
+    return this.userService.findAll(deleted);
   }
 
   @Roles(Role.USER)
@@ -73,6 +73,13 @@ export class UserController {
   @Patch('update')
   updateUser(@GetUser() user, @Body() dto: UpdateUserDto) {
     return this.userService.updateUser(user.id, dto);
+  }
+
+  @Roles(Role.USER)
+  @UseGuards(JwtGuard, RoleGuard)
+  @Delete()
+  deleteUser(@GetUser() user, @Body() dto: UpdateUserDto) {
+    return this.userService.deleteUser(user.id, dto);
   }
 
   @Roles(Role.USER)
