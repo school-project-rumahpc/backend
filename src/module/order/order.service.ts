@@ -31,42 +31,55 @@ export class OrderService {
 
     orders
       .filter((order) => order.deadline !== null)
-      .map((order) => {
-        const now = new Date();
-        const deadline = order.deadline;
+      .map((order) => this.checkOrderDeadline(order));
+  }
 
-        if (deadline.getTime() < now.getTime()) {
-          // restore product stock
-          const items = order.items;
-          items.map(({ quantity, item }) => {
-            const stock = item.stock + quantity;
-            this.productRepository.update(item.id, { stock });
-          });
+  checkOrderDeadline({ id, deadline, items }: Order) {
+    if (deadline !== null) {
+      const now = new Date();
 
-          // set status and deadline
-          this.updateStatus(order.id, Status.FAIL);
-          // soft remove
-          this.orderRepository.softDelete(order.id);
-        }
-      });
+      if (deadline.getTime() < now.getTime()) {
+        // restore product stock
+        this.restoreProductStock(id, items);
+      }
+    }
+  }
+
+  restoreProductStock(id, items) {
+    items.map(({ quantity, item }) => {
+      const stock = item.stock + quantity;
+      this.productRepository.update(item.id, { stock });
+    });
+
+    // set status and deadline
+    this.updateStatus(id, Status.FAIL);
+    // soft remove
+    this.orderRepository.softDelete(id);
   }
 
   async getAllOrder(deleted: string = 'false') {
-    const orders = await this.orderRepository.find({
+    const allOrders = await this.orderRepository.find({
       relations: ['user'],
       withDeleted: deleted === 'true',
     });
 
-    return orders;
+    // checking order deadline
+    allOrders.map((order) => this.checkOrderDeadline(order));
+
+    return allOrders;
   }
 
   async getUserOrder(userId: string, deleted: string = 'false') {
-    const orders = await this.orderRepository.find({
+    const allOrders = await this.orderRepository.find({
       where: { user: { id: userId } },
       withDeleted: deleted === 'true',
+      order: { orderDate: 'DESC' },
     });
 
-    return orders;
+    // checking user order deadline
+    allOrders.map((order) => this.checkOrderDeadline(order));
+
+    return allOrders;
   }
 
   async getOrderById(id: string, userId: string) {
@@ -145,16 +158,7 @@ export class OrderService {
     if (!order) throw new NotFoundException('Order not found');
 
     // restore product stock
-    const items = order.items;
-    items.map(({ quantity, item }) => {
-      const stock = item.stock + quantity;
-      this.productRepository.update(item.id, { stock });
-    });
-
-    // set order's status to fail
-    await this.updateStatus(id, Status.FAIL);
-    // soft delete order
-    await this.orderRepository.softDelete(id);
+    this.restoreProductStock(order.id, order.items);
 
     return { message: 'Order cancelled' };
   }
@@ -177,7 +181,8 @@ export class OrderService {
   }
 
   async uploadOrderImage(orderId: string, filePath: string) {
-    await this.orderRepository.update(orderId, { image: filePath });
+    const path = `http://localhost:3333/api/${filePath}`;
+    await this.orderRepository.update(orderId, { image: path });
 
     await this.updateStatus(orderId, Status.PENDING);
 
