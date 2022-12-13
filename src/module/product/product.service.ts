@@ -101,19 +101,18 @@ export class ProductService {
     id: string,
     { name, stock, price, images, category_id }: UpdateProductDto,
   ) {
-    const product = await this.findOne(id);
     const category = await this.categoryRepository.findOne({
       where: { id: category_id },
       relations: ['products'],
     });
 
-    product.name = name;
-    product.stock = stock;
-    product.price = price;
-    product.images = images;
-    product.category = category;
-
-    await this.productRepository.save(product);
+    await this.productRepository.update(id, {
+      name,
+      stock,
+      price,
+      images,
+      category,
+    });
     return {
       message: 'Update success',
     };
