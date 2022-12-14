@@ -6,6 +6,7 @@ import { CartService } from '../cart/cart.service';
 import { Cart } from '../cart/entity/cart.entity';
 import { Products } from '../product/entity';
 import { User } from '../user/entity/user.entity';
+import { OrderDto } from './dto/order.dto';
 import { Order } from './entity/order.entity';
 import { Status } from './enum/status.enum';
 
@@ -136,36 +137,36 @@ export class OrderService {
     };
   }
 
-  async acceptOrder(id: string) {
+  async acceptOrder({ order_id }: OrderDto) {
     // update user order
-    await this.updateStatus(id, Status.ONQUEUE);
+    await this.updateStatus(order_id, Status.ONQUEUE);
 
     return { message: 'Success!' };
   }
 
-  async finishOrder(id: string) {
-    await this.updateStatus(id, Status.FINISHED);
+  async finishOrder({ order_id }: OrderDto) {
+    await this.updateStatus(order_id, Status.FINISHED);
 
-    return { message: `Order with id: ${id} has finished` };
+    return { message: `Order with id: ${order_id} has finished` };
   }
 
-  async cancelOrder(userId: string, id: string) {
+  async cancelOrder(userId: string, { order_id }: OrderDto) {
     const order = await this.orderRepository.findOneBy({
-      id,
+      id: order_id,
       user: { id: userId },
     });
 
     if (!order) throw new NotFoundException('Order not found');
 
     // restore product stock
-    this.restoreProductStock(order.id, order.items);
+    this.restoreProductStock(order_id, order.items);
 
     return { message: 'Order cancelled' };
   }
 
-  async rejectOrder(id: string) {
-    const order = await this.orderRepository.findOneBy({ id });
-    await this.updateStatus(id, Status.FAIL);
+  async rejectOrder({ order_id }: OrderDto) {
+    const order = await this.orderRepository.findOneBy({ id: order_id });
+    await this.updateStatus(order_id, Status.FAIL);
 
     // restore product stock
     const items = order.items;
@@ -175,7 +176,7 @@ export class OrderService {
     });
 
     // soft delete user order
-    await this.orderRepository.softDelete(id);
+    await this.orderRepository.softDelete(order_id);
 
     return { message: 'Success!' };
   }

@@ -21,6 +21,7 @@ import { GetUser } from 'src/custom-decorator/get-user.decorator';
 import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { Role } from '../user/enum/role.enum';
+import { OrderDto } from './dto/order.dto';
 import { OrderService } from './order.service';
 
 @Controller('order')
@@ -63,7 +64,7 @@ export class OrderController {
     }),
   )
   uploadImage(
-    @Body('order_id') orderId: string,
+    @Body() dto: OrderDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -74,27 +75,27 @@ export class OrderController {
     )
     file: Express.Multer.File,
   ) {
-    return this.orderService.uploadOrderImage(orderId, file.path);
+    return this.orderService.uploadOrderImage(dto.order_id, file.path);
   }
 
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   @Patch('accept')
-  acceptOrder(@Body('order_id') orderId: string) {
-    return this.orderService.acceptOrder(orderId);
+  acceptOrder(@Body() dto: OrderDto) {
+    return this.orderService.acceptOrder(dto);
   }
 
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   @Patch('reject')
-  rejectOrder(@Body('order_id') orderId: string) {
-    return this.orderService.rejectOrder(orderId);
+  rejectOrder(@Body() dto: OrderDto) {
+    return this.orderService.rejectOrder(dto);
   }
 
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
   @Delete('cancel')
-  cancelOrder(@GetUser() user, @Body('order_id') orderId: string) {
-    return this.orderService.cancelOrder(user.id, orderId);
+  cancelOrder(@GetUser() user, @Body() dto: OrderDto) {
+    return this.orderService.cancelOrder(user.id, dto);
   }
 }
