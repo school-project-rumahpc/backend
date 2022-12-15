@@ -92,6 +92,13 @@ export class OrderController {
     return this.orderService.rejectOrder(dto);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RoleGuard)
+  @Patch('finish')
+  finishOrder(@Body() dto: OrderDto) {
+    return this.orderService.finishOrder(dto);
+  }
+
   @Roles(Role.USER)
   @UseGuards(JwtGuard, RoleGuard)
   @Delete('cancel')
