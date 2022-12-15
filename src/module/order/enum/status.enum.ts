@@ -1,7 +1,7 @@
 export enum Status {
   WAITING = 'Waiting',
   PENDING = 'Pending',
-  ONQUEUE = 'OnQueue',
+  APPROVED = 'Approved',
   FINISHED = 'Finished',
   FAIL = 'Failed',
 }

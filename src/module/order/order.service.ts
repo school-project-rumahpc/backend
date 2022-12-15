@@ -139,7 +139,7 @@ export class OrderService {
 
   async acceptOrder({ order_id }: OrderDto) {
     // update user order
-    await this.updateStatus(order_id, Status.ONQUEUE);
+    await this.updateStatus(order_id, Status.APPROVED);
 
     return { message: 'Success!' };
   }
