@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 import { Status } from '../enum/status.enum';
 
-@Entity({ name: 'orders' })
+@Entity({ name: 'orders', orderBy: { orderDate: 'DESC' } })
 export class Order {
   @PrimaryColumn()
   id: string;

@@ -22,6 +22,7 @@ import { Roles } from 'src/custom-decorator/roles.decorator';
 import { JwtGuard, RoleGuard } from '../auth/guard';
 import { Role } from '../user/enum/role.enum';
 import { OrderDto } from './dto/order.dto';
+import { Status } from './enum/status.enum';
 import { OrderService } from './order.service';
 
 @Controller('order')
@@ -31,14 +32,17 @@ export class OrderController {
   @Roles(Role.ADMIN)
   @UseGuards(JwtGuard, RoleGuard)
   @Get()
-  getAllOrders(@Query('deleted') deleted: string) {
-    return this.orderService.getAllOrder(deleted);
+  getAllOrders(
+    @Query('deleted') deleted: string,
+    @Query('status') status: Status,
+  ) {
+    return this.orderService.getAllOrder(deleted, status);
   }
 
   @UseGuards(JwtGuard)
   @Get(':id')
   getOneOrder(@Param('id') id: string, @GetUser() user) {
-    return this.orderService.getOrderById(id, user.id);
+    return this.orderService.getOrderById(id, user);
   }
 
   @Roles(Role.USER)

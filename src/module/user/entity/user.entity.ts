@@ -20,7 +20,7 @@ export class User {
   id: string;
 
   @Column({ type: 'enum', enum: Role, default: [Role.USER] })
-  role: Role[];
+  role: Role;
 
   @Column({ unique: true })
   username: string;

@@ -1,11 +1,18 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
 import { Repository } from 'typeorm';
 import { CartService } from '../cart/cart.service';
 import { Cart } from '../cart/entity/cart.entity';
 import { Products } from '../product/entity';
 import { User } from '../user/entity/user.entity';
+import { Role } from '../user/enum/role.enum';
 import { OrderDto } from './dto/order.dto';
 import { Order } from './entity/order.entity';
 import { Status } from './enum/status.enum';
@@ -58,8 +65,9 @@ export class OrderService {
     this.orderRepository.softDelete(id);
   }
 
-  async getAllOrder(deleted: string = 'false') {
+  async getAllOrder(deleted: string = 'false', status: Status) {
     const allOrders = await this.orderRepository.find({
+      where: status && { status },
       relations: ['user'],
       withDeleted: deleted === 'true',
     });
@@ -83,15 +91,20 @@ export class OrderService {
     return allOrders;
   }
 
-  async getOrderById(id: string, userId: string) {
+  async getOrderById(id: string, user: User) {
     const order = await this.orderRepository.findOne({
-      where: { id, user: { id: userId } },
+      where: { id },
+      relations: ['user'],
       withDeleted: true,
     });
 
     if (!order) throw new NotFoundException('Order Not Found!');
 
-    return order;
+    if (order.user.id == user.id || user.role == Role.ADMIN) {
+      return order;
+    }
+
+    return new ForbiddenException();
   }
 
   async createOrder(user: User) {
@@ -150,6 +163,12 @@ export class OrderService {
     return { message: `Order with id: ${order_id} has finished` };
   }
 
+  async deleteImage({ id, image }: Order) {
+    const path = image.split('/')[4];
+    fs.unlinkSync(path);
+    await this.orderRepository.update(id, { image: null });
+  }
+
   async cancelOrder(userId: string, { order_id }: OrderDto) {
     const order = await this.orderRepository.findOneBy({
       id: order_id,
@@ -157,6 +176,9 @@ export class OrderService {
     });
 
     if (!order) throw new NotFoundException('Order not found');
+
+    // if order has an image
+    if (order.image) this.deleteImage(order);
 
     // restore product stock
     this.restoreProductStock(order_id, order.items);
@@ -166,17 +188,11 @@ export class OrderService {
 
   async rejectOrder({ order_id }: OrderDto) {
     const order = await this.orderRepository.findOneBy({ id: order_id });
-    await this.updateStatus(order_id, Status.FAIL);
+
+    if (!order) throw new NotFoundException('Order not found');
 
     // restore product stock
-    const items = order.items;
-    items.map(({ quantity, item }) => {
-      const stock = item.stock + quantity;
-      this.productRepository.update(item.id, { stock });
-    });
-
-    // soft delete user order
-    await this.orderRepository.softDelete(order_id);
+    this.restoreProductStock(order_id, order.items);
 
     return { message: 'Success!' };
   }
